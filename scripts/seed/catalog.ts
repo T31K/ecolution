@@ -31,7 +31,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "octopus-energy",
     name: "Octopus Energy",
-    logo: "/img/logo-gridworks.jpg",
+    logo: "/img/companies/octopus-energy.jpg",
     impactArea: "renewable-energy",
     blurb:
       "a retail energy business running one of Europe's largest smart-tariff and flexibility platforms",
@@ -46,7 +46,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "watershed",
     name: "Watershed",
-    logo: "/img/logo-watershed.jpg",
+    logo: "/img/companies/watershed.jpg",
     impactArea: "carbon-capture",
     blurb:
       "a carbon accounting platform used by enterprises to measure and reduce emissions",
@@ -61,7 +61,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "helion",
     name: "Helion Energy",
-    logo: "/img/co-helion.jpg",
+    logo: "/img/companies/helion.jpg",
     impactArea: "renewable-energy",
     blurb: "a fusion company building pulsed non-ignition fusion generators",
     listingShare: 61,
@@ -75,7 +75,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "form-energy",
     name: "Form Energy",
-    logo: "/img/co-sila.jpg",
+    logo: "/img/companies/form-energy.jpg",
     impactArea: "renewable-energy",
     blurb:
       "a storage company commercialising multi-day iron-air batteries for the grid",
@@ -90,7 +90,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "climeworks",
     name: "Climeworks",
-    logo: "/img/logo-atmoshield.jpg",
+    logo: "/img/companies/climeworks.jpg",
     impactArea: "carbon-capture",
     blurb: "a direct air capture operator running commercial DAC plants",
     listingShare: 48,
@@ -104,7 +104,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "rivian",
     name: "Rivian",
-    logo: "/img/co-rivian.jpg",
+    logo: "/img/companies/rivian.jpg",
     impactArea: "circular-economy",
     blurb:
       "an electric vehicle manufacturer building trucks, vans and charging networks",
@@ -119,7 +119,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "solestial",
     name: "Solestial",
-    logo: "/img/co-solestial.jpg",
+    logo: "/img/companies/solestial.jpg",
     impactArea: "renewable-energy",
     blurb: "a manufacturer of radiation-tolerant silicon solar blankets for orbit",
     listingShare: 33,
@@ -133,7 +133,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "hydrologic",
     name: "HydroLogic Systems",
-    logo: "/img/logo-hydrologic.jpg",
+    logo: "/img/companies/hydrologic.jpg",
     impactArea: "water-systems",
     blurb:
       "a water infrastructure firm designing storm surge and freshwater recovery systems",
@@ -148,7 +148,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "zeropath",
     name: "ZeroPath",
-    logo: "/img/logo-zeropath.jpg",
+    logo: "/img/companies/zeropath.jpg",
     impactArea: "circular-economy",
     blurb:
       "a reverse-logistics operator running take-back programmes for manufacturers",
@@ -163,7 +163,7 @@ export const COMPANIES: CompanyProfile[] = [
   {
     id: "terrabase-solar",
     name: "Terrabase Solar",
-    logo: "/img/logo-terrabase.jpg",
+    logo: "/img/companies/terrabase-solar.jpg",
     impactArea: "renewable-energy",
     blurb:
       "a utility-scale solar developer using robotics for build-out and maintenance",
