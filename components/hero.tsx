@@ -4,7 +4,23 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container } from "./container";
 import { COUNTRY_NAMES } from "./browse-filters";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { MapPin, Search } from "lucide-react";
+
+/** Label lookup so the trigger shows "Germany", not "DE". */
+const LOCATION_LABELS = (countries: string[]): Record<string, string> => ({
+  any: "Anywhere",
+  remote: "Remote only",
+  ...Object.fromEntries(
+    countries.map((country) => [country, COUNTRY_NAMES[country] ?? country]),
+  ),
+});
 
 const POPULAR_SEARCHES = [
   { label: "Carbon Capture", href: "/browse?impact=carbon-capture" },
@@ -22,12 +38,12 @@ export function Hero({
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState("any");
 
   const search = () => {
     const params = new URLSearchParams();
     if (query.trim()) params.set("q", query.trim());
-    if (location) params.set("country", location);
+    if (location && location !== "any") params.set("country", location);
     const qs = params.toString();
     router.push(qs ? `/browse?${qs}` : "/browse");
   };
@@ -76,20 +92,28 @@ export function Hero({
             </div>
             <div className="flex w-full flex-1 items-center px-4">
               <MapPin className="h-5 w-5 shrink-0 text-outline" />
-              <select
-                aria-label="Location"
+              <Select
                 value={location}
-                onChange={(event) => setLocation(event.target.value)}
-                className="w-full cursor-pointer border-none bg-transparent py-4 pl-2 text-body-md focus:outline-none"
+                onValueChange={(value) => setLocation(value as string)}
               >
-                <option value="">Anywhere</option>
-                <option value="remote">Remote only</option>
-                {countries.map((country) => (
-                  <option key={country} value={country}>
-                    {COUNTRY_NAMES[country] ?? country}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger
+                  aria-label="Location"
+                  className="w-full border-none bg-transparent py-4 pl-2 text-body-md shadow-none focus-visible:ring-0"
+                >
+                  <SelectValue>
+                    {(value) => LOCATION_LABELS(countries)[value as string]}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Anywhere</SelectItem>
+                  <SelectItem value="remote">Remote only</SelectItem>
+                  {countries.map((country) => (
+                    <SelectItem key={country} value={country}>
+                      {COUNTRY_NAMES[country] ?? country}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <button
               type="submit"
