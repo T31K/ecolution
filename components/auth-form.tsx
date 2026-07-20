@@ -4,6 +4,9 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Briefcase, Building2, Loader2, Mail } from "lucide-react";
 import { FaApple, FaGithub, FaGoogle } from "react-icons/fa6";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { signIn } from "@/app/auth/actions";
 import { DEMO_ACCOUNTS } from "@/lib/auth";
 import { setSession } from "@/lib/overlay";
@@ -81,21 +84,19 @@ export function AuthForm() {
           {ACCOUNT_TYPES.map((type) => {
             const selected = type.id === accountType;
             return (
-              <button
+              <Button
                 key={type.id}
                 type="button"
                 role="radio"
                 aria-checked={selected}
+                variant={selected ? "brand" : "ghost"}
+                size="pill"
                 onClick={() => setAccountType(type.id)}
-                className={
-                  selected
-                    ? "flex items-center justify-center gap-2 rounded-full bg-secondary px-4 py-3.5 text-body-md font-semibold text-on-secondary shadow-sm transition-all"
-                    : "flex items-center justify-center gap-2 rounded-full px-4 py-3.5 text-body-md font-semibold text-on-surface-variant transition-all hover:text-secondary"
-                }
+                className="text-body-md font-semibold"
               >
                 <type.icon className="h-5 w-5" />
                 {type.label}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -110,37 +111,43 @@ export function AuthForm() {
           Demo accounts
         </p>
         <div className="flex flex-col gap-2 sm:flex-row">
-          <button
+          <Button
             type="button"
+            variant="brand"
+            size="pill"
             disabled={pending}
             onClick={() => signInAsDemo("seeker")}
-            className="flex-1 rounded-full bg-secondary px-4 py-3 text-label-md text-on-secondary transition-all hover:brightness-110 active:scale-95 disabled:opacity-60"
+            className="flex-1"
           >
             Sign in as job seeker
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="brandOutline"
+            size="pill"
             disabled={pending}
             onClick={() => signInAsDemo("employer")}
-            className="flex-1 rounded-full border border-secondary px-4 py-3 text-label-md text-secondary transition-all hover:bg-secondary/10 active:scale-95 disabled:opacity-60"
+            className="flex-1"
           >
             Sign in as employer
-          </button>
+          </Button>
         </div>
       </div>
 
       <div className="mb-stack-lg space-y-stack-sm">
         {PROVIDERS.map((provider) => (
-          <button
+          <Button
             key={provider.label}
             type="button"
+            variant="outline"
+            size="pill-lg"
             disabled={pending}
             title="Social sign-in is not wired up in this demo"
-            className="flex w-full items-center justify-center gap-3 rounded-full border border-outline-variant bg-white px-6 py-4 text-body-md font-semibold text-on-surface transition-all hover:bg-surface-container-high active:scale-95 disabled:opacity-60"
+            className="w-full rounded-full"
           >
             <provider.icon className="h-5 w-5" />
             Continue with {provider.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -160,15 +167,12 @@ export function AuthForm() {
         }}
       >
         <div>
-          <label
-            htmlFor="email"
-            className="mb-2 block text-label-md text-on-surface-variant"
-          >
+          <Label htmlFor="email" className="mb-2 text-label-md">
             Email Address
-          </label>
+          </Label>
           <div className="relative">
             <Mail className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-on-surface-variant" />
-            <input
+            <Input
               id="email"
               name="email"
               type="email"
@@ -180,19 +184,16 @@ export function AuthForm() {
                   ? "you@company.com"
                   : "name@example.com"
               }
-              className="w-full rounded-lg border border-outline-variant bg-white py-4 pr-4 pl-12 text-body-lg transition-all outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+              className="h-14 bg-white pl-12 text-body-lg"
             />
           </div>
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="mb-2 block text-label-md text-on-surface-variant"
-          >
+          <Label htmlFor="password" className="mb-2 text-label-md">
             Password
-          </label>
-          <input
+          </Label>
+          <Input
             id="password"
             name="password"
             type="password"
@@ -200,7 +201,7 @@ export function AuthForm() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="password"
-            className="w-full rounded-lg border border-outline-variant bg-white px-4 py-4 text-body-lg transition-all outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+            className="h-14 bg-white text-body-lg"
           />
         </div>
 
@@ -210,14 +211,16 @@ export function AuthForm() {
           </p>
         )}
 
-        <button
+        <Button
           type="submit"
+          variant="brand"
+          size="pill-lg"
           disabled={pending}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-secondary py-5 text-body-md font-bold text-on-secondary shadow-sm transition-all hover:brightness-110 active:scale-95 disabled:opacity-60"
+          className="w-full"
         >
           {pending && <Loader2 className="h-5 w-5 animate-spin" />}
           {pending ? "Signing in…" : `Continue as ${active.label.toLowerCase()}`}
-        </button>
+        </Button>
       </form>
     </>
   );

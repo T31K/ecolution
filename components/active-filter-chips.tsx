@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { COUNTRY_NAMES } from "./browse-filters";
 import { IMPACT_LABELS, ROLE_LABELS } from "@/lib/job-view";
 import {
@@ -90,22 +91,26 @@ export function ActiveFilterChips() {
   return (
     <div className="mb-stack-md flex flex-wrap items-center gap-2">
       {chips.map((chip) => (
-        <button
+        <Button
           key={chip.key}
+          size="sm"
+          variant="outline"
           onClick={chip.clear}
           aria-label={`Remove filter ${chip.label}`}
-          className="flex items-center gap-1.5 rounded-full border border-secondary/30 bg-secondary/5 px-3 py-1.5 text-label-sm text-secondary transition-colors hover:bg-secondary/10"
+          className="rounded-full border-secondary/30 bg-secondary/5 text-label-sm text-secondary hover:bg-secondary/10"
         >
           {chip.label}
           <X className="h-3.5 w-3.5" />
-        </button>
+        </Button>
       ))}
-      <button
+      <Button
+        variant="link"
+        size="sm"
         onClick={() => router.push("/browse", { scroll: false })}
-        className="text-label-sm text-on-surface-variant underline hover:text-secondary"
+        className="h-auto p-0 text-label-sm text-on-surface-variant hover:text-secondary"
       >
         Clear all
-      </button>
+      </Button>
     </div>
   );
 }

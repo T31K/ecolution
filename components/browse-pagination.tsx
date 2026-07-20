@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { filtersToQuery, parseFilters } from "@/lib/filters";
 
 /** A short window around the current page, always including first and last. */
@@ -46,14 +47,16 @@ export function BrowsePagination({
       aria-label="Pagination"
       className="mt-stack-lg flex items-center justify-center gap-4"
     >
-      <button
+      <Button
+        variant="outline"
+        size="icon-lg"
         aria-label="Previous page"
         disabled={current === 1}
         onClick={() => goTo(current - 1)}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-all hover:border-secondary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-outline-variant disabled:hover:text-on-surface"
+        className="rounded-full border-outline-variant hover:border-secondary hover:text-secondary"
       >
         <ChevronLeft className="h-5 w-5" />
-      </button>
+      </Button>
 
       <div className="flex items-center gap-2">
         {pageWindow(current, totalPages).map((page, index) =>
@@ -62,30 +65,30 @@ export function BrowsePagination({
               …
             </span>
           ) : (
-            <button
+            <Button
               key={page}
+              variant={page === current ? "brand" : "ghost"}
+              size="icon-lg"
               aria-current={page === current ? "page" : undefined}
               onClick={() => goTo(page)}
-              className={
-                page === current
-                  ? "flex h-10 w-10 items-center justify-center rounded-full bg-secondary font-bold text-on-secondary"
-                  : "flex h-10 w-10 items-center justify-center rounded-full text-on-surface transition-all hover:bg-surface-container-high"
-              }
+              className="rounded-full"
             >
               {page}
-            </button>
+            </Button>
           ),
         )}
       </div>
 
-      <button
+      <Button
+        variant="outline"
+        size="icon-lg"
         aria-label="Next page"
         disabled={current === totalPages}
         onClick={() => goTo(current + 1)}
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-all hover:border-secondary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-outline-variant disabled:hover:text-on-surface"
+        className="rounded-full border-outline-variant hover:border-secondary hover:text-secondary"
       >
         <ChevronRight className="h-5 w-5" />
-      </button>
+      </Button>
     </nav>
   );
 }

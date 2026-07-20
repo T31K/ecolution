@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Banknote, BadgeCheck, Clock } from "lucide-react";
 import { IMPACT_ICONS, IMPACT_LABELS, formatPostedAgo } from "@/lib/job-view";
+import { Card, CardContent } from "@/components/ui/card";
 import type { Job } from "@/lib/types";
 
 const RECENT_THRESHOLD_MS = 3 * 24 * 60 * 60 * 1000;
@@ -14,8 +15,10 @@ export function JobCard({ job, now }: { job: Job; now: number }) {
   const verified = job.views > 1500;
 
   return (
-    <article className="group relative rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 transition-all duration-300 focus-within:border-secondary/40 hover:border-secondary/40 hover:shadow-raised">
-      <div className="flex flex-col gap-6 sm:flex-row">
+    <Card
+      className="group relative gap-0 border-outline-variant/30 bg-surface-container-lowest py-0 transition-all duration-300 focus-within:border-secondary/40 hover:border-secondary/40 hover:shadow-raised"
+    >
+      <CardContent className="flex flex-col gap-6 p-6 sm:flex-row">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-container-high p-2">
           <Image
             src={job.companyLogo}
@@ -97,7 +100,7 @@ export function JobCard({ job, now }: { job: Job; now: number }) {
             Apply
           </Link>
         </div>
-      </div>
-    </article>
+      </CardContent>
+    </Card>
   );
 }

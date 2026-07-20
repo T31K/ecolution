@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MapPin, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 /** Label lookup so the trigger shows "Germany", not "DE". */
 const LOCATION_LABELS = (countries: string[]): Record<string, string> => ({
@@ -81,8 +83,8 @@ export function Hero({
           >
             <div className="flex w-full flex-1 items-center border-b border-outline-variant/30 px-4 md:border-r md:border-b-0">
               <Search className="h-5 w-5 shrink-0 text-outline" />
-              <input
-                className="w-full border-none bg-transparent py-4 pl-2 text-body-md focus:outline-none"
+              <Input
+                className="border-none bg-transparent pl-2 text-body-md shadow-none focus-visible:ring-0"
                 placeholder="Search for climate tech roles..."
                 aria-label="Search for climate tech roles"
                 type="text"
@@ -115,12 +117,14 @@ export function Hero({
                 </SelectContent>
               </Select>
             </div>
-            <button
+            <Button
               type="submit"
-              className="w-full rounded-lg bg-secondary px-8 py-4 text-label-md text-on-secondary transition-all hover:shadow-lg hover:shadow-secondary/20 active:scale-95 md:w-auto"
+              variant="brand"
+              size="pill-lg"
+              className="w-full rounded-lg md:w-auto"
             >
               Search Jobs
-            </button>
+            </Button>
           </form>
 
           <div className="mt-stack-lg flex flex-wrap items-center justify-center gap-3">

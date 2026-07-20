@@ -2,6 +2,17 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import {
   ROLE_LABELS,
   IMPACT_LABELS,
@@ -17,6 +28,15 @@ import {
 import type { ImpactArea, RoleType } from "@/lib/types";
 
 const ROLE_TYPES = Object.keys(ROLE_LABELS) as RoleType[];
+
+/** Label lookup so the trigger shows "Germany", not "DE". */
+const LOCATION_LABELS = (countries: string[]): Record<string, string> => ({
+  any: "Anywhere",
+  remote: "Remote only",
+  ...Object.fromEntries(
+    countries.map((country) => [country, COUNTRY_NAMES[country] ?? country]),
+  ),
+});
 const IMPACT_AREAS = Object.keys(IMPACT_LABELS) as ImpactArea[];
 
 export function BrowseFilters({ countries }: { countries: string[] }) {
@@ -47,12 +67,14 @@ export function BrowseFilters({ countries }: { countries: string[] }) {
             Filters
           </h2>
           {hasActiveFilters(filters) && (
-            <button
+            <Button
+              variant="link"
+              size="sm"
               onClick={() => router.push("/browse", { scroll: false })}
-              className="text-label-sm text-secondary hover:underline"
+              className="h-auto p-0 text-label-sm text-secondary"
             >
               Clear all
-            </button>
+            </Button>
           )}
         </div>
 
@@ -64,17 +86,17 @@ export function BrowseFilters({ countries }: { countries: string[] }) {
             {ROLE_TYPES.map((role) => {
               const checked = filters.roles.includes(role);
               return (
-                <label
+                <Label
                   key={role}
-                  className="group flex cursor-pointer items-center gap-3"
+                  htmlFor={`role-${role}`}
+                  className="group flex cursor-pointer items-center gap-3 font-normal"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    id={`role-${role}`}
                     checked={checked}
-                    onChange={() =>
+                    onCheckedChange={() =>
                       apply({ roles: toggle(filters.roles, role) })
                     }
-                    className="h-5 w-5 rounded border-outline accent-secondary"
                   />
                   <span
                     className={
@@ -85,62 +107,56 @@ export function BrowseFilters({ countries }: { countries: string[] }) {
                   >
                     {ROLE_LABELS[role]}
                   </span>
-                </label>
+                </Label>
               );
             })}
           </div>
         </fieldset>
 
         <div className="mb-6">
-          <label
-            htmlFor="filter-country"
-            className="mb-3 block text-label-md text-on-surface"
-          >
+          <Label htmlFor="filter-country" className="mb-3 text-label-md">
             Location
-          </label>
-          <div className="relative">
-            <MapPin className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-outline" />
-            <select
-              id="filter-country"
-              value={filters.remote ? "remote" : (filters.countries[0] ?? "")}
-              onChange={(event) => {
-                const value = event.target.value;
-                if (value === "") apply({ countries: [], remote: false });
-                else if (value === "remote")
-                  apply({ countries: [], remote: true });
-                else apply({ countries: [value], remote: false });
-              }}
-              className="w-full cursor-pointer rounded-lg border border-outline-variant py-2 pr-4 pl-10 text-body-sm focus:border-secondary focus:ring-2 focus:ring-secondary/20 focus:outline-none"
-            >
-              <option value="">Anywhere</option>
-              <option value="remote">Remote only</option>
+          </Label>
+          <Select
+            value={filters.remote ? "remote" : (filters.countries[0] ?? "any")}
+            onValueChange={(value) => {
+              if (value === "any") apply({ countries: [], remote: false });
+              else if (value === "remote")
+                apply({ countries: [], remote: true });
+              else apply({ countries: [value as string], remote: false });
+            }}
+          >
+            <SelectTrigger id="filter-country" className="w-full">
+              <MapPin className="h-4 w-4 shrink-0 text-outline" />
+              <SelectValue>
+                {(value) => LOCATION_LABELS(countries)[value as string]}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="any">Anywhere</SelectItem>
+              <SelectItem value="remote">Remote only</SelectItem>
               {countries.map((country) => (
-                <option key={country} value={country}>
+                <SelectItem key={country} value={country}>
                   {COUNTRY_NAMES[country] ?? country}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-          </div>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="mb-6">
-          <label
-            htmlFor="filter-salary"
-            className="mb-3 block text-label-md text-on-surface"
-          >
+          <Label htmlFor="filter-salary" className="mb-3 text-label-md">
             Minimum salary
-          </label>
-          <input
+          </Label>
+          <Slider
             id="filter-salary"
-            type="range"
             min={SALARY_FLOOR}
             max={SALARY_CEILING}
             step={10000}
             value={filters.salaryMin}
-            onChange={(event) =>
-              apply({ salaryMin: Number(event.target.value) })
+            onValueCommitted={(value) =>
+              apply({ salaryMin: Array.isArray(value) ? value[0] : value })
             }
-            className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-surface-container-highest accent-secondary"
           />
           <div className="mt-2 flex justify-between">
             <span className="text-label-sm text-on-surface-variant">Any</span>
@@ -161,20 +177,18 @@ export function BrowseFilters({ countries }: { countries: string[] }) {
             {IMPACT_AREAS.map((area) => {
               const active = filters.impactAreas.includes(area);
               return (
-                <button
+                <Button
                   key={area}
+                  size="sm"
+                  variant={active ? "secondary" : "outline"}
                   aria-pressed={active}
                   onClick={() =>
                     apply({ impactAreas: toggle(filters.impactAreas, area) })
                   }
-                  className={
-                    active
-                      ? "rounded border border-secondary/20 bg-surface-container-highest px-3 py-1.5 text-label-sm text-secondary"
-                      : "rounded border border-outline-variant/30 bg-surface-container-low px-3 py-1.5 text-label-sm text-on-surface-variant hover:border-secondary/50"
-                  }
+                  className="text-label-sm"
                 >
                   {IMPACT_LABELS[area]}
-                </button>
+                </Button>
               );
             })}
           </div>

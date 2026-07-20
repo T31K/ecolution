@@ -49,12 +49,14 @@ export default function EmployerDashboardPage() {
             <Plus />
             Post a Job
           </Button>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             aria-label="Notifications"
-            className="text-on-surface-variant transition-colors hover:text-secondary"
+            className="text-on-surface-variant hover:text-secondary"
           >
             <Bell className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -161,12 +163,14 @@ export default function EmployerDashboardPage() {
                     >
                       {listing.status}
                     </Badge>
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
                       aria-label={`More options for ${listing.title}`}
-                      className="text-on-surface-variant transition-colors hover:text-secondary"
+                      className="text-on-surface-variant hover:text-secondary"
                     >
                       <MoreVertical className="h-5 w-5" />
-                    </button>
+                    </Button>
                   </div>
                 </CardContent>
 

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Container } from "./container";
 import { Menu, X } from "lucide-react";
 import { SessionMenu } from "./session-menu";
+import { Button } from "@/components/ui/button";
 
 const NAV_LINKS = [
   { label: "Browse Jobs", href: "/browse" },
@@ -59,14 +60,16 @@ export function SiteHeader() {
           >
             Post a Job
           </Link>
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             className="text-secondary md:hidden"
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             onClick={() => setMenuOpen((open) => !open)}
           >
             {menuOpen ? <X /> : <Menu />}
-          </button>
+          </Button>
         </div>
       </Container>
 

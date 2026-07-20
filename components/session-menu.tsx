@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { setSession } from "@/lib/overlay";
 import { useOverlay } from "@/lib/store";
 
@@ -45,19 +46,23 @@ export function SessionMenu({ onNavigate }: { onNavigate?: () => void }) {
         </span>
       </Link>
 
-      <button
+      <Button
+        variant="ghost"
+        size="icon-sm"
         aria-label="Reset demo data"
         title="Reset demo data"
         onClick={() => {
           reset();
           router.push("/");
         }}
-        className="text-on-surface-variant transition-colors hover:text-secondary"
+        className="text-on-surface-variant hover:text-secondary"
       >
         <RotateCcw className="h-4 w-4" />
-      </button>
+      </Button>
 
-      <button
+      <Button
+        variant="ghost"
+        size="icon-sm"
         aria-label="Sign out"
         title="Sign out"
         onClick={() => {
@@ -65,10 +70,10 @@ export function SessionMenu({ onNavigate }: { onNavigate?: () => void }) {
           onNavigate?.();
           router.push("/");
         }}
-        className="text-on-surface-variant transition-colors hover:text-secondary"
+        className="text-on-surface-variant hover:text-secondary"
       >
         <LogOut className="h-4 w-4" />
-      </button>
+      </Button>
     </div>
   );
 }

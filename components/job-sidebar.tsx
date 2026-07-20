@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Brain } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { ROLE_LABELS, formatPostedAgo } from "@/lib/job-view";
 import { getSeedNow } from "@/lib/seed";
 import type { Job } from "@/lib/types";
@@ -93,10 +94,14 @@ export function JobSidebar({
             Our climate talent scouts offer free resume reviews for senior
             engineering roles.
           </p>
-          <button className="flex items-center gap-1 text-label-md font-bold text-secondary-container transition-all group-hover:gap-2">
+          <Button
+            variant="link"
+            size="sm"
+            className="h-auto p-0 text-label-md font-bold text-secondary-container no-underline"
+          >
             Connect with a Scout
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </button>
+          </Button>
         </div>
         <Brain
           className="pointer-events-none absolute -right-4 -bottom-4 h-[120px] w-[120px] rotate-12 opacity-10"
