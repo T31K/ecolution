@@ -126,7 +126,10 @@ export function BrowseFilters({ countries }: { countries: string[] }) {
               else apply({ countries: [value as string], remote: false });
             }}
           >
-            <SelectTrigger id="filter-country" className="w-full">
+            <SelectTrigger
+              id="filter-country"
+              className="h-10 w-full text-body-sm"
+            >
               <MapPin className="h-4 w-4 shrink-0 text-outline" />
               <SelectValue>
                 {(value) => LOCATION_LABELS(countries)[value as string]}

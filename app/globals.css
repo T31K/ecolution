@@ -191,38 +191,40 @@ body {
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* shadcn's neutral defaults are mapped onto the Ecolution palette so every
+     shadcn control (Input, Select, Checkbox, Slider, Dialog, Card) inherits
+     brand borders, surfaces and focus rings instead of rendering in generic
+     greyscale. Change these, not each component's className. */
+  --background: #ffffff;              /* surface-container-lowest */
+  --foreground: #0d1c2f;              /* on-surface */
+  --card: #ffffff;
+  --card-foreground: #0d1c2f;
+  --popover: #ffffff;
+  --popover-foreground: #0d1c2f;
+  --primary-foreground: #ffffff;      /* on dark green primary */
+  --secondary-foreground: #ffffff;    /* on brand green secondary */
+  --muted: #eff4ff;                   /* surface-container-low */
+  --muted-foreground: #424942;        /* on-surface-variant */
+  --accent: #e6eeff;                  /* surface-container */
+  --accent-foreground: #0d1c2f;
+  --destructive: #ba1a1a;             /* error */
+  --border: #c1c8bf;                  /* outline-variant */
+  --input: #c1c8bf;
+  --ring: #006c49;                    /* secondary — brand focus ring */
+  --chart-1: #006c49;
+  --chart-2: #6cf8bb;
+  --chart-3: #052e16;
+  --chart-4: #bdcac1;
+  --chart-5: #727971;
+  --radius: 0.5rem;                   /* matches the design's rounded-lg */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0d1c2f;
+  --sidebar-primary: #006c49;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eff4ff;
+  --sidebar-accent-foreground: #006c49;
+  --sidebar-border: #c1c8bf;
+  --sidebar-ring: #006c49;
 }
 
 .dark {

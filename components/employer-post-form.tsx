@@ -148,7 +148,7 @@ export function EmployerPostForm() {
               <div className="grid gap-2">
                 <Label htmlFor="job-remote">Remote</Label>
                 <Select value={remote} onValueChange={(v) => setRemote(v as string)}>
-                  <SelectTrigger id="job-remote">
+                  <SelectTrigger id="job-remote" className="h-10 w-full">
                     <SelectValue>
                       {(value) => (value === "yes" ? "Remote" : "On-site")}
                     </SelectValue>
@@ -191,7 +191,7 @@ export function EmployerPostForm() {
                   value={roleType}
                   onValueChange={(v) => setRoleType(v as RoleType)}
                 >
-                  <SelectTrigger id="job-role">
+                  <SelectTrigger id="job-role" className="h-10 w-full">
                     <SelectValue>
                       {(value) => ROLE_LABELS[value as RoleType]}
                     </SelectValue>
@@ -212,7 +212,7 @@ export function EmployerPostForm() {
                   value={seniority}
                   onValueChange={(v) => setSeniority(v as Seniority)}
                 >
-                  <SelectTrigger id="job-seniority">
+                  <SelectTrigger id="job-seniority" className="h-10 w-full">
                     <SelectValue>
                       {(value) => SENIORITY_LABELS[value as Seniority]}
                     </SelectValue>
@@ -233,7 +233,7 @@ export function EmployerPostForm() {
                   value={impactArea}
                   onValueChange={(v) => setImpactArea(v as ImpactArea)}
                 >
-                  <SelectTrigger id="job-impact">
+                  <SelectTrigger id="job-impact" className="h-10 w-full">
                     <SelectValue>
                       {(value) => IMPACT_LABELS[value as ImpactArea]}
                     </SelectValue>

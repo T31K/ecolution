@@ -143,7 +143,7 @@ export function EmployerJobApplicants({ jobId }: { jobId: string }) {
                         }
                       >
                         <SelectTrigger
-                          className="w-44"
+                          className="h-10 w-44 text-body-sm"
                           aria-label={`Change status for ${name}`}
                         >
                           <SelectValue>
