@@ -1,5 +1,5 @@
 import { Leaf } from "lucide-react";
-import type { JobStat } from "@/app/jobs/[id]/job-data";
+import type { JobStat } from "@/lib/types";
 
 export function JobImpact({
   summary,

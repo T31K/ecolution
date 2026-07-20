@@ -1,8 +1,13 @@
 import Image from "next/image";
 import { Clock, MapPin } from "lucide-react";
-import type { Job } from "@/app/jobs/[id]/job-data";
+import { ApplyButton } from "@/components/apply-button";
+import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
+import { getSeedNow } from "@/lib/seed";
+import type { Job } from "@/lib/types";
 
 export function JobHeader({ job }: { job: Job }) {
+  const chips = jobChips(job);
+
   return (
     <section className="mb-stack-lg rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-stack-md shadow-card md:p-stack-lg">
       <div className="flex flex-col items-start justify-between gap-stack-md md:flex-row md:items-center">
@@ -11,8 +16,8 @@ export function JobHeader({ job }: { job: Job }) {
             <Image
               src={job.companyLogo}
               alt={job.companyLogoAlt}
-              width={512}
-              height={279}
+              width={64}
+              height={64}
               className="h-full w-full object-contain"
               priority
             />
@@ -26,28 +31,21 @@ export function JobHeader({ job }: { job: Job }) {
               <span className="text-label-sm text-outline">•</span>
               <span className="flex items-center gap-1 text-body-sm text-on-surface-variant">
                 <MapPin className="h-[18px] w-[18px]" aria-hidden="true" />
-                {job.location}
+                {job.locationDisplay}
               </span>
               <span className="flex items-center gap-1 text-body-sm text-on-surface-variant">
                 <Clock className="h-[18px] w-[18px]" aria-hidden="true" />
-                {job.postedAgo}
+                {formatPostedAgo(job.postedAt, getSeedNow())}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="flex w-full items-center gap-stack-sm md:w-auto">
-          <button className="flex-1 rounded-full border border-secondary px-6 py-2.5 text-label-md text-secondary transition-all hover:bg-secondary/5 md:flex-none">
-            Save Job
-          </button>
-          <button className="flex-1 rounded-full bg-secondary px-8 py-2.5 text-label-md text-on-secondary shadow-md transition-all hover:opacity-90 active:scale-95 md:flex-none">
-            Apply Now
-          </button>
-        </div>
+        <ApplyButton job={job} />
       </div>
 
       <div className="mt-stack-md flex flex-wrap gap-stack-sm border-t border-outline-variant/30 pt-stack-md">
-        {job.chips.map((chip) => (
+        {chips.map((chip) => (
           <span
             key={chip}
             className="rounded-sm bg-surface-container-low px-3 py-1 text-label-sm font-medium text-on-surface-variant"
@@ -60,7 +58,7 @@ export function JobHeader({ job }: { job: Job }) {
             className="h-2 w-2 animate-pulse rounded-full bg-secondary"
             aria-hidden="true"
           />
-          {job.impactChip}
+          {IMPACT_LABELS[job.impactArea]}
         </span>
       </div>
     </section>

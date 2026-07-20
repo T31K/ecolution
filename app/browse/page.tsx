@@ -5,7 +5,7 @@ import { Container } from "@/components/container";
 import { JobCard } from "@/components/job-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { BROWSE_JOBS } from "@/lib/jobs";
+import { getSeed, getSeedNow } from "@/lib/seed";
 
 export const metadata: Metadata = {
   title: "Browse Green Tech Jobs | Ecolution",
@@ -13,7 +13,17 @@ export const metadata: Metadata = {
     "Connect with leading climate tech firms and mission-driven startups engineering a sustainable world.",
 };
 
+const PAGE_SIZE = 20;
+
 export default function BrowsePage() {
+  const now = getSeedNow().getTime();
+  // Stage 5 replaces this with URL-param filtering; for now the newest
+  // listings are shown so the page reflects real seed data end to end.
+  const all = getSeed()
+    .jobs.slice()
+    .sort((a, b) => b.postedAt.localeCompare(a.postedAt));
+  const jobs = all.slice(0, PAGE_SIZE);
+
   return (
     <>
       <SiteHeader />
@@ -35,8 +45,10 @@ export default function BrowsePage() {
           <section className="grow">
             <div className="mb-stack-md flex flex-col items-center justify-between gap-4 md:flex-row">
               <p className="text-body-md text-on-surface-variant">
-                <span className="font-bold text-on-surface">1,248</span> climate
-                tech roles found
+                <span className="font-bold text-on-surface">
+                  {all.length.toLocaleString()}
+                </span>{" "}
+                climate tech roles found
               </p>
               <div className="flex items-center gap-2">
                 <label
@@ -57,12 +69,15 @@ export default function BrowsePage() {
             </div>
 
             <div className="grid grid-cols-1 gap-stack-md">
-              {BROWSE_JOBS.map((job) => (
-                <JobCard key={job.id} job={job} />
+              {jobs.map((job) => (
+                <JobCard key={job.id} job={job} now={now} />
               ))}
             </div>
 
-            <BrowsePagination current={1} />
+            <BrowsePagination
+              current={1}
+              totalPages={Math.ceil(all.length / PAGE_SIZE)}
+            />
           </section>
         </div>
       </Container>

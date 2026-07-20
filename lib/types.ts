@@ -21,6 +21,10 @@ export type ImpactArea =
 
 export type Currency = "USD" | "EUR" | "GBP";
 
+export type JobStat = { value: string; label: string };
+
+export type CompanyFact = { label: string; value: string };
+
 export type Job = {
   id: string;
   title: string;
@@ -49,10 +53,10 @@ export type Job = {
   // detail page
   about: string;
   impactSummary: string;
-  impactStats: { value: string; label: string }[];
+  impactStats: JobStat[];
   responsibilities: string[];
   requirements: string[];
-  companyFacts: { label: string; value: string }[];
+  companyFacts: CompanyFact[];
 };
 
 export type AppStatus =

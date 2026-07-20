@@ -1,20 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Banknote, BadgeCheck, Clock } from "lucide-react";
-import type { BrowseJob } from "@/lib/jobs";
+import { IMPACT_ICONS, IMPACT_LABELS, formatPostedAgo } from "@/lib/job-view";
+import type { Job } from "@/lib/types";
 
-export function JobCard({ job }: { job: BrowseJob }) {
-  const ImpactIcon = job.impact.icon;
+const RECENT_THRESHOLD_MS = 3 * 24 * 60 * 60 * 1000;
+
+/** `now` is passed in rather than read during render: it keeps every card in
+ *  a list consistent, and reading the clock mid-render is impure. */
+export function JobCard({ job, now }: { job: Job; now: number }) {
+  const ImpactIcon = IMPACT_ICONS[job.impactArea];
+  const isNew = now - new Date(job.postedAt).getTime() < RECENT_THRESHOLD_MS;
+  const verified = job.views > 1500;
 
   return (
-    <article className="group relative rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 transition-all duration-300 hover:border-secondary/40 hover:shadow-raised focus-within:border-secondary/40">
+    <article className="group relative rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 transition-all duration-300 focus-within:border-secondary/40 hover:border-secondary/40 hover:shadow-raised">
       <div className="flex flex-col gap-6 sm:flex-row">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-container-high">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-container-high p-2">
           <Image
-            src={job.logo}
-            alt={`${job.company} logo: ${job.logoAlt}`}
-            width={40}
-            height={40}
+            src={job.companyLogo}
+            alt={job.companyLogoAlt}
+            width={48}
+            height={48}
             className="h-10 w-10 object-contain"
           />
         </div>
@@ -31,15 +38,11 @@ export function JobCard({ job }: { job: BrowseJob }) {
                 {job.title}
               </Link>
             </h2>
-            <div
-              className={
-                job.impact.highlighted
-                  ? "flex items-center gap-1.5 rounded border border-secondary/10 bg-secondary-container/30 px-3 py-1 text-secondary"
-                  : "flex items-center gap-1.5 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1 text-on-surface-variant"
-              }
-            >
+            <div className="flex items-center gap-1.5 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1 text-on-surface-variant">
               <ImpactIcon className="h-4 w-4" />
-              <span className="text-label-sm">{job.impact.label}</span>
+              <span className="text-label-sm">
+                {IMPACT_LABELS[job.impactArea]}
+              </span>
             </div>
           </div>
 
@@ -49,26 +52,28 @@ export function JobCard({ job }: { job: BrowseJob }) {
             </span>
             <span className="h-1 w-1 rounded-full bg-outline" />
             <span className="text-body-md text-on-surface-variant">
-              {job.location}
+              {job.locationDisplay}
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-on-surface-variant">
             <div className="flex items-center gap-1">
               <Banknote className="h-5 w-5 text-outline" />
-              <span className="text-body-sm">{job.salary}</span>
+              <span className="text-body-sm">{job.salaryDisplay}</span>
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-5 w-5 text-outline" />
-              <span className="text-body-sm">{job.posted}</span>
+              <span className="text-body-sm">
+                {formatPostedAgo(job.postedAt, new Date(now))}
+              </span>
             </div>
-            {job.verified && (
+            {verified && (
               <div className="flex items-center gap-1">
                 <BadgeCheck className="h-5 w-5 text-outline" />
                 <span className="text-body-sm">Climate Impact Verified</span>
               </div>
             )}
-            {job.isNew && (
+            {isNew && (
               <span className="rounded bg-secondary px-2 py-0.5 text-[10px] font-bold tracking-wider text-on-secondary uppercase">
                 New
               </span>
@@ -85,9 +90,12 @@ export function JobCard({ job }: { job: BrowseJob }) {
           >
             Details
           </Link>
-          <button className="rounded-full bg-secondary px-6 py-2 text-body-sm font-bold text-on-secondary transition-all hover:shadow-md active:scale-95 sm:w-full">
+          <Link
+            href={`/jobs/${job.id}`}
+            className="rounded-full bg-secondary px-6 py-2 text-center text-body-sm font-bold text-on-secondary transition-all hover:shadow-md active:scale-95 sm:w-full"
+          >
             Apply
-          </button>
+          </Link>
         </div>
       </div>
     </article>

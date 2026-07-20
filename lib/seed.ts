@@ -18,6 +18,23 @@ for (const job of data.jobs) {
   else jobsByPoster.set(job.posterId, [job]);
 }
 
+/**
+ * The seed's own reference clock: the newest posting in the dataset.
+ *
+ * Relative times are rendered against this rather than the real clock. The
+ * seed is frozen, so using Date.now() would make every listing drift to
+ * "Posted 8 months ago" as the demo ages. Anchoring here keeps the board
+ * reading fresh indefinitely, and keeps render deterministic.
+ */
+const seedNow = data.jobs.reduce(
+  (latest, job) => (job.postedAt > latest ? job.postedAt : latest),
+  data.jobs[0]?.postedAt ?? new Date(0).toISOString(),
+);
+
+export function getSeedNow(): Date {
+  return new Date(seedNow);
+}
+
 export function getSeed(): SeedData {
   return data;
 }

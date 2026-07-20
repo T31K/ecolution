@@ -1,9 +1,14 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const PAGES = [1, 2, 3];
-const LAST_PAGE = 12;
 
-export function BrowsePagination({ current = 1 }: { current?: number }) {
+export function BrowsePagination({
+  current = 1,
+  totalPages = 12,
+}: {
+  current?: number;
+  totalPages?: number;
+}) {
   return (
     <nav
       aria-label="Pagination"
@@ -32,7 +37,7 @@ export function BrowsePagination({ current = 1 }: { current?: number }) {
         ))}
         <span className="text-outline">…</span>
         <button className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface transition-all hover:bg-surface-container-high">
-          {LAST_PAGE}
+          {totalPages}
         </button>
       </div>
 

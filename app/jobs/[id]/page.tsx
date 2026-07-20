@@ -1,31 +1,38 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/container";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { JobBulletList } from "@/components/job-bullet-list";
 import { JobHeader } from "@/components/job-header";
 import { JobImpact } from "@/components/job-impact";
 import { JobSidebar } from "@/components/job-sidebar";
-import { JOBS, getJob } from "./job-data";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { findSimilarJobs } from "@/lib/job-view";
+import { getJobById, getSeed } from "@/lib/seed";
 
 type JobPageProps = {
   params: Promise<{ id: string }>;
 };
 
+/**
+ * Only the most recent listings are prerendered — 500 static pages would slow
+ * every build for pages nobody opens. The rest render on demand.
+ */
 export function generateStaticParams() {
-  return Object.keys(JOBS).map((id) => ({ id }));
+  return getSeed()
+    .jobs.slice()
+    .sort((a, b) => b.postedAt.localeCompare(a.postedAt))
+    .slice(0, 25)
+    .map((job) => ({ id: job.id }));
 }
 
 export async function generateMetadata({
   params,
 }: JobPageProps): Promise<Metadata> {
   const { id } = await params;
-  const job = getJob(id);
+  const job = getJobById(id);
 
-  if (!job) {
-    return { title: "Job not found | Ecolution" };
-  }
+  if (!job) return { title: "Job not found | Ecolution" };
 
   return {
     title: `${job.title} at ${job.company} | Ecolution`,
@@ -35,11 +42,11 @@ export async function generateMetadata({
 
 export default async function JobPage({ params }: JobPageProps) {
   const { id } = await params;
-  const job = getJob(id);
+  const job = getJobById(id);
 
-  if (!job) {
-    notFound();
-  }
+  if (!job) notFound();
+
+  const similarJobs = findSimilarJobs(job, getSeed().jobs);
 
   return (
     <>
@@ -59,10 +66,7 @@ export default async function JobPage({ params }: JobPageProps) {
                 </p>
               </article>
 
-              <JobImpact
-                summary={job.impactSummary}
-                stats={job.impactStats}
-              />
+              <JobImpact summary={job.impactSummary} stats={job.impactStats} />
 
               <JobBulletList
                 title="Responsibilities"
@@ -77,7 +81,7 @@ export default async function JobPage({ params }: JobPageProps) {
               />
             </div>
 
-            <JobSidebar job={job} />
+            <JobSidebar job={job} similarJobs={similarJobs} />
           </div>
         </Container>
       </main>
