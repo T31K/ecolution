@@ -1,16 +1,37 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Container } from "./container";
+import { COUNTRY_NAMES } from "./browse-filters";
 import { MapPin, Search } from "lucide-react";
 
 const POPULAR_SEARCHES = [
-  "Carbon Capture",
-  "Nuclear Fusion",
-  "EV Infrastructure",
-  "Grid Software",
+  { label: "Carbon Capture", href: "/browse?impact=carbon-capture" },
+  { label: "Grid Software", href: "/browse?q=grid" },
+  { label: "Engineering", href: "/browse?role=engineering" },
+  { label: "Remote", href: "/browse?country=remote" },
 ];
 
-export function Hero() {
+export function Hero({
+  countries,
+  totalJobs,
+}: {
+  countries: string[];
+  totalJobs: number;
+}) {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [location, setLocation] = useState("");
+
+  const search = () => {
+    const params = new URLSearchParams();
+    if (query.trim()) params.set("q", query.trim());
+    if (location) params.set("country", location);
+    const qs = params.toString();
+    router.push(qs ? `/browse?${qs}` : "/browse");
+  };
+
   return (
     <section className="relative overflow-hidden pt-20 pb-32">
       <Container className="relative z-10">
@@ -18,7 +39,7 @@ export function Hero() {
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary-container/30 px-4 py-1.5">
             <span className="flex h-2 w-2 animate-pulse rounded-full bg-secondary" />
             <span className="text-label-md text-secondary">
-              1,240 active climate roles posted this week
+              {totalJobs.toLocaleString()} active climate roles on the board
             </span>
           </div>
 
@@ -37,25 +58,38 @@ export function Hero() {
 
           <form
             className="glass-card flex w-full max-w-3xl flex-col items-center gap-2 rounded-xl border border-outline-variant/30 p-2 shadow-raised transition-all focus-within:border-secondary focus-within:shadow-[0_20px_60px_rgba(0,108,73,0.2)] md:flex-row"
-            onSubmit={(event) => event.preventDefault()}
+            onSubmit={(event) => {
+              event.preventDefault();
+              search();
+            }}
           >
-            <div className="flex w-full flex-1 items-center border-b border-outline-variant/30 px-4 md:border-b-0 md:border-r">
+            <div className="flex w-full flex-1 items-center border-b border-outline-variant/30 px-4 md:border-r md:border-b-0">
               <Search className="h-5 w-5 shrink-0 text-outline" />
               <input
                 className="w-full border-none bg-transparent py-4 pl-2 text-body-md focus:outline-none"
                 placeholder="Search for climate tech roles..."
                 aria-label="Search for climate tech roles"
                 type="text"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
               />
             </div>
             <div className="flex w-full flex-1 items-center px-4">
               <MapPin className="h-5 w-5 shrink-0 text-outline" />
-              <input
-                className="w-full border-none bg-transparent py-4 pl-2 text-body-md focus:outline-none"
-                placeholder="Remote or City"
+              <select
                 aria-label="Location"
-                type="text"
-              />
+                value={location}
+                onChange={(event) => setLocation(event.target.value)}
+                className="w-full cursor-pointer border-none bg-transparent py-4 pl-2 text-body-md focus:outline-none"
+              >
+                <option value="">Anywhere</option>
+                <option value="remote">Remote only</option>
+                {countries.map((country) => (
+                  <option key={country} value={country}>
+                    {COUNTRY_NAMES[country] ?? country}
+                  </option>
+                ))}
+              </select>
             </div>
             <button
               type="submit"
@@ -66,16 +100,16 @@ export function Hero() {
           </form>
 
           <div className="mt-stack-lg flex flex-wrap items-center justify-center gap-3">
-            <span className="text-label-sm uppercase tracking-wider text-on-surface-variant">
+            <span className="text-label-sm tracking-wider text-on-surface-variant uppercase">
               Popular:
             </span>
             {POPULAR_SEARCHES.map((term) => (
               <a
-                key={term}
-                href="#"
+                key={term.label}
+                href={term.href}
                 className="rounded-full bg-tertiary-fixed px-4 py-1 text-label-sm text-on-tertiary-fixed transition-colors hover:bg-secondary-container"
               >
-                {term}
+                {term.label}
               </a>
             ))}
           </div>

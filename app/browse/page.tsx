@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { ActiveFilterChips } from "@/components/active-filter-chips";
 import { BrowseFilters } from "@/components/browse-filters";
 import { BrowsePagination } from "@/components/browse-pagination";
 import { Container } from "@/components/container";
 import { JobCard } from "@/components/job-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import {
+  filterJobs,
+  hasActiveFilters,
+  paginate,
+  parseFilters,
+} from "@/lib/filters";
 import { getSeed, getSeedNow } from "@/lib/seed";
 
 export const metadata: Metadata = {
@@ -13,16 +21,22 @@ export const metadata: Metadata = {
     "Connect with leading climate tech firms and mission-driven startups engineering a sustainable world.",
 };
 
-const PAGE_SIZE = 20;
+type BrowsePageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
 
-export default function BrowsePage() {
+export default async function BrowsePage({ searchParams }: BrowsePageProps) {
+  const filters = parseFilters(await searchParams);
   const now = getSeedNow().getTime();
-  // Stage 5 replaces this with URL-param filtering; for now the newest
-  // listings are shown so the page reflects real seed data end to end.
-  const all = getSeed()
-    .jobs.slice()
-    .sort((a, b) => b.postedAt.localeCompare(a.postedAt));
-  const jobs = all.slice(0, PAGE_SIZE);
+  const seed = getSeed();
+
+  const countries = [...new Set(seed.jobs.map((job) => job.country))].sort();
+
+  const matched = filterJobs(seed.jobs, filters).sort((a, b) =>
+    b.postedAt.localeCompare(a.postedAt),
+  );
+  const { items, current, totalPages, total } = paginate(matched, filters.page);
+  const active = hasActiveFilters(filters);
 
   return (
     <>
@@ -40,44 +54,56 @@ export default function BrowsePage() {
         </header>
 
         <div className="flex flex-col gap-gutter lg:flex-row">
-          <BrowseFilters />
+          <Suspense fallback={<div className="w-full lg:w-72" />}>
+            <BrowseFilters countries={countries} />
+          </Suspense>
 
           <section className="grow">
             <div className="mb-stack-md flex flex-col items-center justify-between gap-4 md:flex-row">
               <p className="text-body-md text-on-surface-variant">
                 <span className="font-bold text-on-surface">
-                  {all.length.toLocaleString()}
+                  {total.toLocaleString()}
                 </span>{" "}
-                climate tech roles found
+                {total === 1 ? "role" : "roles"} found
               </p>
               <div className="flex items-center gap-2">
-                <label
-                  htmlFor="sort-by"
-                  className="text-body-sm text-on-surface-variant"
-                >
-                  Sort by:
-                </label>
-                <select
-                  id="sort-by"
-                  className="cursor-pointer border-none bg-transparent text-label-md text-on-surface focus:outline-none"
-                >
-                  <option>Most Recent</option>
-                  <option>Salary: High to Low</option>
-                  <option>Impact Rating</option>
-                </select>
+                <span className="text-body-sm text-on-surface-variant">
+                  Sorted by:
+                </span>
+                <span className="text-label-md text-on-surface">
+                  Most recent
+                </span>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-stack-md">
-              {jobs.map((job) => (
-                <JobCard key={job.id} job={job} now={now} />
-              ))}
-            </div>
+            <Suspense fallback={null}>
+              <ActiveFilterChips />
+            </Suspense>
 
-            <BrowsePagination
-              current={1}
-              totalPages={Math.ceil(all.length / PAGE_SIZE)}
-            />
+            {items.length === 0 ? (
+              <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-stack-lg text-center shadow-card">
+                <p className="mb-2 text-body-lg font-semibold text-on-surface">
+                  No roles match those filters
+                </p>
+                <p className="text-body-md text-on-surface-variant">
+                  {active
+                    ? "Try removing a filter above, or widen your salary range."
+                    : "There are no listings right now."}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-stack-md">
+                {items.map((job) => (
+                  <JobCard key={job.id} job={job} now={now} />
+                ))}
+              </div>
+            )}
+
+            {totalPages > 1 && (
+              <Suspense fallback={null}>
+                <BrowsePagination current={current} totalPages={totalPages} />
+              </Suspense>
+            )}
           </section>
         </div>
       </Container>

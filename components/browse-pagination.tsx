@@ -1,14 +1,46 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+"use client";
 
-const PAGES = [1, 2, 3];
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { filtersToQuery, parseFilters } from "@/lib/filters";
+
+/** A short window around the current page, always including first and last. */
+function pageWindow(current: number, total: number): (number | "gap")[] {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, index) => index + 1);
+  }
+
+  const pages = new Set<number>([1, total, current]);
+  if (current - 1 > 1) pages.add(current - 1);
+  if (current + 1 < total) pages.add(current + 1);
+
+  const sorted = [...pages].sort((a, b) => a - b);
+  const result: (number | "gap")[] = [];
+  let previous = 0;
+  for (const page of sorted) {
+    if (previous && page - previous > 1) result.push("gap");
+    result.push(page);
+    previous = page;
+  }
+  return result;
+}
 
 export function BrowsePagination({
   current = 1,
-  totalPages = 12,
+  totalPages = 1,
 }: {
   current?: number;
   totalPages?: number;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const filters = parseFilters(Object.fromEntries(searchParams.entries()));
+
+  const goTo = (page: number) => {
+    const query = filtersToQuery({ ...filters, page });
+    router.push(query ? `/browse?${query}` : "/browse", { scroll: true });
+  };
+
   return (
     <nav
       aria-label="Pagination"
@@ -16,34 +48,41 @@ export function BrowsePagination({
     >
       <button
         aria-label="Previous page"
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-all hover:border-secondary hover:text-secondary"
+        disabled={current === 1}
+        onClick={() => goTo(current - 1)}
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-all hover:border-secondary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-outline-variant disabled:hover:text-on-surface"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
 
       <div className="flex items-center gap-2">
-        {PAGES.map((page) => (
-          <button
-            key={page}
-            aria-current={page === current ? "page" : undefined}
-            className={
-              page === current
-                ? "flex h-10 w-10 items-center justify-center rounded-full bg-secondary font-bold text-on-secondary"
-                : "flex h-10 w-10 items-center justify-center rounded-full text-on-surface transition-all hover:bg-surface-container-high"
-            }
-          >
-            {page}
-          </button>
-        ))}
-        <span className="text-outline">…</span>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full text-on-surface transition-all hover:bg-surface-container-high">
-          {totalPages}
-        </button>
+        {pageWindow(current, totalPages).map((page, index) =>
+          page === "gap" ? (
+            <span key={`gap-${index}`} className="text-outline">
+              …
+            </span>
+          ) : (
+            <button
+              key={page}
+              aria-current={page === current ? "page" : undefined}
+              onClick={() => goTo(page)}
+              className={
+                page === current
+                  ? "flex h-10 w-10 items-center justify-center rounded-full bg-secondary font-bold text-on-secondary"
+                  : "flex h-10 w-10 items-center justify-center rounded-full text-on-surface transition-all hover:bg-surface-container-high"
+              }
+            >
+              {page}
+            </button>
+          ),
+        )}
       </div>
 
       <button
         aria-label="Next page"
-        className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-all hover:border-secondary hover:text-secondary"
+        disabled={current === totalPages}
+        onClick={() => goTo(current + 1)}
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant text-on-surface transition-all hover:border-secondary hover:text-secondary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-outline-variant disabled:hover:text-on-surface"
       >
         <ChevronRight className="h-5 w-5" />
       </button>

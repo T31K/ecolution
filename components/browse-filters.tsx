@@ -1,46 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MapPin } from "lucide-react";
+import {
+  ROLE_LABELS,
+  IMPACT_LABELS,
+} from "@/lib/job-view";
+import {
+  SALARY_CEILING,
+  SALARY_FLOOR,
+  filtersToQuery,
+  hasActiveFilters,
+  parseFilters,
+  type JobFilters,
+} from "@/lib/filters";
+import type { ImpactArea, RoleType } from "@/lib/types";
 
-const ROLE_TYPES = [
-  "Engineering",
-  "Data Science",
-  "Product Management",
-  "Sustainability Policy",
-];
+const ROLE_TYPES = Object.keys(ROLE_LABELS) as RoleType[];
+const IMPACT_AREAS = Object.keys(IMPACT_LABELS) as ImpactArea[];
 
-const IMPACT_AREAS = [
-  "Renewable Energy",
-  "Carbon Removal",
-  "Circular Economy",
-  "Water Systems",
-];
+export function BrowseFilters({ countries }: { countries: string[] }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const filters = parseFilters(Object.fromEntries(searchParams.entries()));
 
-const SALARY_MIN = 40000;
-const SALARY_MAX = 300000;
-
-export function BrowseFilters() {
-  const [roles, setRoles] = useState<string[]>(["Engineering"]);
-  const [areas, setAreas] = useState<string[]>(["Renewable Energy"]);
-  const [location, setLocation] = useState("");
-  const [salary, setSalary] = useState(120000);
-
-  const toggle = (
-    value: string,
-    list: string[],
-    setList: (next: string[]) => void,
-  ) =>
-    setList(
-      list.includes(value) ? list.filter((v) => v !== value) : [...list, value],
-    );
-
-  const clearAll = () => {
-    setRoles([]);
-    setAreas([]);
-    setLocation("");
-    setSalary(120000);
+  /**
+   * All filter state lives in the URL, so the server can do the filtering and
+   * links stay shareable. Every control writes through this.
+   */
+  const apply = (patch: Partial<JobFilters>) => {
+    const next = { ...filters, ...patch, page: 1 };
+    const query = filtersToQuery(next);
+    router.push(query ? `/browse?${query}` : "/browse", { scroll: false });
   };
+
+  const toggle = <T,>(list: T[], value: T): T[] =>
+    list.includes(value)
+      ? list.filter((item) => item !== value)
+      : [...list, value];
 
   return (
     <aside className="w-full shrink-0 lg:w-72">
@@ -49,12 +46,14 @@ export function BrowseFilters() {
           <h2 className="font-display text-headline-md text-on-surface">
             Filters
           </h2>
-          <button
-            onClick={clearAll}
-            className="text-label-sm text-secondary hover:underline"
-          >
-            Clear all
-          </button>
+          {hasActiveFilters(filters) && (
+            <button
+              onClick={() => router.push("/browse", { scroll: false })}
+              className="text-label-sm text-secondary hover:underline"
+            >
+              Clear all
+            </button>
+          )}
         </div>
 
         <fieldset className="mb-6">
@@ -63,7 +62,7 @@ export function BrowseFilters() {
           </legend>
           <div className="space-y-2">
             {ROLE_TYPES.map((role) => {
-              const checked = roles.includes(role);
+              const checked = filters.roles.includes(role);
               return (
                 <label
                   key={role}
@@ -72,7 +71,9 @@ export function BrowseFilters() {
                   <input
                     type="checkbox"
                     checked={checked}
-                    onChange={() => toggle(role, roles, setRoles)}
+                    onChange={() =>
+                      apply({ roles: toggle(filters.roles, role) })
+                    }
                     className="h-5 w-5 rounded border-outline accent-secondary"
                   />
                   <span
@@ -82,7 +83,7 @@ export function BrowseFilters() {
                         : "text-body-sm text-on-surface-variant group-hover:text-secondary"
                     }
                   >
-                    {role}
+                    {ROLE_LABELS[role]}
                   </span>
                 </label>
               );
@@ -92,21 +93,33 @@ export function BrowseFilters() {
 
         <div className="mb-6">
           <label
-            htmlFor="filter-location"
+            htmlFor="filter-country"
             className="mb-3 block text-label-md text-on-surface"
           >
             Location
           </label>
           <div className="relative">
             <MapPin className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-outline" />
-            <input
-              id="filter-location"
-              type="text"
-              value={location}
-              onChange={(event) => setLocation(event.target.value)}
-              placeholder="City or Remote"
-              className="w-full rounded-lg border border-outline-variant py-2 pr-4 pl-10 text-body-sm focus:border-secondary focus:ring-2 focus:ring-secondary/20 focus:outline-none"
-            />
+            <select
+              id="filter-country"
+              value={filters.remote ? "remote" : (filters.countries[0] ?? "")}
+              onChange={(event) => {
+                const value = event.target.value;
+                if (value === "") apply({ countries: [], remote: false });
+                else if (value === "remote")
+                  apply({ countries: [], remote: true });
+                else apply({ countries: [value], remote: false });
+              }}
+              className="w-full cursor-pointer rounded-lg border border-outline-variant py-2 pr-4 pl-10 text-body-sm focus:border-secondary focus:ring-2 focus:ring-secondary/20 focus:outline-none"
+            >
+              <option value="">Anywhere</option>
+              <option value="remote">Remote only</option>
+              {countries.map((country) => (
+                <option key={country} value={country}>
+                  {COUNTRY_NAMES[country] ?? country}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -115,24 +128,28 @@ export function BrowseFilters() {
             htmlFor="filter-salary"
             className="mb-3 block text-label-md text-on-surface"
           >
-            Salary Range (USD)
+            Minimum salary
           </label>
           <input
             id="filter-salary"
             type="range"
-            min={SALARY_MIN}
-            max={SALARY_MAX}
-            step={5000}
-            value={salary}
-            onChange={(event) => setSalary(Number(event.target.value))}
+            min={SALARY_FLOOR}
+            max={SALARY_CEILING}
+            step={10000}
+            value={filters.salaryMin}
+            onChange={(event) =>
+              apply({ salaryMin: Number(event.target.value) })
+            }
             className="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-surface-container-highest accent-secondary"
           />
           <div className="mt-2 flex justify-between">
-            <span className="text-label-sm text-on-surface-variant">$40k</span>
+            <span className="text-label-sm text-on-surface-variant">Any</span>
             <span className="text-label-sm font-semibold text-secondary">
-              ${Math.round(salary / 1000)}k
+              {filters.salaryMin > SALARY_FLOOR
+                ? `${Math.round(filters.salaryMin / 1000)}k+`
+                : "No minimum"}
             </span>
-            <span className="text-label-sm text-on-surface-variant">$300k+</span>
+            <span className="text-label-sm text-on-surface-variant">300k+</span>
           </div>
         </div>
 
@@ -142,19 +159,21 @@ export function BrowseFilters() {
           </span>
           <div className="flex flex-wrap gap-2">
             {IMPACT_AREAS.map((area) => {
-              const active = areas.includes(area);
+              const active = filters.impactAreas.includes(area);
               return (
                 <button
                   key={area}
                   aria-pressed={active}
-                  onClick={() => toggle(area, areas, setAreas)}
+                  onClick={() =>
+                    apply({ impactAreas: toggle(filters.impactAreas, area) })
+                  }
                   className={
                     active
                       ? "rounded border border-secondary/20 bg-surface-container-highest px-3 py-1.5 text-label-sm text-secondary"
                       : "rounded border border-outline-variant/30 bg-surface-container-low px-3 py-1.5 text-label-sm text-on-surface-variant hover:border-secondary/50"
                   }
                 >
-                  {area}
+                  {IMPACT_LABELS[area]}
                 </button>
               );
             })}
@@ -164,3 +183,14 @@ export function BrowseFilters() {
     </aside>
   );
 }
+
+export const COUNTRY_NAMES: Record<string, string> = {
+  US: "United States",
+  GB: "United Kingdom",
+  DE: "Germany",
+  DK: "Denmark",
+  NO: "Norway",
+  NL: "Netherlands",
+  CH: "Switzerland",
+  CA: "Canada",
+};
