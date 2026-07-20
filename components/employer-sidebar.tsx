@@ -1,15 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   Building2,
   Briefcase,
   LayoutDashboard,
+  LogOut,
   Settings,
   Users,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { setSession } from "@/lib/overlay";
+import { useOverlay } from "@/lib/store";
 import {
   Sidebar,
   SidebarContent,
@@ -34,6 +38,9 @@ const NAV_ITEMS = [
 
 export function EmployerSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { overlay, update } = useOverlay();
+  const session = overlay.session;
 
   return (
     <Sidebar collapsible="icon" className="border-outline-variant/30">
@@ -75,16 +82,29 @@ export function EmployerSidebar() {
       <SidebarFooter className="border-t border-outline-variant/30 p-3">
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-container/50 text-label-sm font-bold text-secondary">
-            VE
+            {(session?.name ?? "EC").slice(0, 2).toUpperCase()}
           </span>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="truncate text-body-sm font-semibold text-on-surface">
-              Verida Energy
+              {session?.name ?? "Employer"}
             </p>
             <p className="truncate text-label-sm text-on-surface-variant">
-              Admin Account
+              {session?.email ?? "Admin Account"}
             </p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Sign out"
+            title="Sign out"
+            onClick={() => {
+              update((current) => setSession(current, null));
+              router.push("/");
+            }}
+            className="ml-auto text-on-surface-variant hover:text-secondary group-data-[collapsible=icon]:hidden"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
         </div>
       </SidebarFooter>
 
