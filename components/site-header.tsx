@@ -9,9 +9,9 @@ import { SessionMenu } from "./session-menu";
 
 const NAV_LINKS = [
   { label: "Browse Jobs", href: "/browse" },
-  { label: "Companies", href: "#" },
-  { label: "Impact", href: "#" },
-  { label: "Resources", href: "#" },
+  { label: "Remote", href: "/browse?country=remote" },
+  { label: "Engineering", href: "/browse?role=engineering" },
+  { label: "Carbon Capture", href: "/browse?impact=carbon-capture" },
 ];
 
 export function SiteHeader() {
@@ -53,9 +53,12 @@ export function SiteHeader() {
           <div className="hidden lg:block">
             <SessionMenu />
           </div>
-          <button className="rounded-full bg-secondary px-6 py-2.5 text-label-md text-on-secondary transition-transform active:scale-95">
+          <Link
+            href="/employer"
+            className="rounded-full bg-secondary px-6 py-2.5 text-label-md text-on-secondary transition-transform active:scale-95"
+          >
             Post a Job
-          </button>
+          </Link>
           <button
             className="text-secondary md:hidden"
             aria-expanded={menuOpen}
