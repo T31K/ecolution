@@ -6,6 +6,5 @@ export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
     environment: "node",
-    environmentMatchGlobs: [["tests/store.test.ts", "happy-dom"]],
   },
 });

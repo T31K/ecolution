@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed": "node --experimental-strip-types --no-warnings scripts/seed/index.ts"
+    "seed": "tsx scripts/seed/index.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -33,6 +33,7 @@
     "eslint-config-next": "16.2.10",
     "happy-dom": "^20.11.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.10"
