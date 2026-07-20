@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Check, Loader2 } from "lucide-react";
+import { Check, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,6 +34,28 @@ export function ApplyButton({ job }: { job: Job }) {
 
   const session = overlay.session;
   const signedInAsSeeker = session?.role === "seeker";
+
+  // Real vacancies belong to real employers. Applying here would go nowhere,
+  // so send people to the original posting instead of faking a submission.
+  if (job.source === "real" && job.sourceUrl) {
+    return (
+      <div className="flex w-full flex-col items-stretch gap-2 md:w-auto md:items-end">
+        <Button
+          variant="brand"
+          size="pill"
+          render={
+            <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer" />
+          }
+        >
+          Apply on climatechangejobs.com
+          <ExternalLink className="h-4 w-4" />
+        </Button>
+        <span className="text-label-sm text-on-surface-variant md:text-right">
+          Live vacancy — applications handled by the employer
+        </span>
+      </div>
+    );
+  }
   const applied = session
     ? hasApplied(overlay.applications, session.userId, job.id)
     : false;

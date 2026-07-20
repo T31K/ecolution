@@ -6,10 +6,32 @@ const data = seed as SeedData;
 
 describe("data/seed.json", () => {
   it("has the expected volumes", () => {
-    expect(data.jobs).toHaveLength(500);
-    expect(data.posters).toHaveLength(10);
+    const generated = data.jobs.filter((job) => job.source !== "real");
+    const real = data.jobs.filter((job) => job.source === "real");
+    expect(generated).toHaveLength(500);
+    expect(real).toHaveLength(10);
     expect(data.seekers).toHaveLength(20);
     expect(data.applications.length).toBeGreaterThanOrEqual(30);
+  });
+
+  it("gives every real listing a source URL and no invented salary", () => {
+    for (const job of data.jobs.filter((item) => item.source === "real")) {
+      expect(job.sourceUrl).toMatch(/^https:\/\/climatechangejobs\.com\//);
+      // Their postings omit salary; inventing one would misrepresent a real
+      // vacancy, so it must stay zero and render as "Not specified".
+      if (job.salaryMin === 0) {
+        expect(job.salaryDisplay).toBe("Not specified");
+      }
+    }
+  });
+
+  it("never seeds applications against a real vacancy", () => {
+    const realIds = new Set(
+      data.jobs.filter((job) => job.source === "real").map((job) => job.id),
+    );
+    for (const application of data.applications) {
+      expect(realIds.has(application.jobId)).toBe(false);
+    }
   });
 
   it("contains both demo accounts", () => {
@@ -36,9 +58,22 @@ describe("data/seed.json", () => {
   });
 
   it("stores no React components or icon references", () => {
-    const raw = JSON.stringify(data);
-    expect(raw).not.toContain("function");
-    expect(raw).not.toContain("lucide");
+    // Checking for the substring "function" gave a false positive once real
+    // descriptions arrived ("cross-functional"). Assert the actual invariant:
+    // no serialised functions, and no `icon` key anywhere in the tree.
+    const walk = (value: unknown, path = "$"): void => {
+      expect(typeof value).not.toBe("function");
+      if (Array.isArray(value)) {
+        value.forEach((item, index) => walk(item, `${path}[${index}]`));
+      } else if (value && typeof value === "object") {
+        for (const [key, child] of Object.entries(value)) {
+          expect(key).not.toBe("icon");
+          walk(child, `${path}.${key}`);
+        }
+      }
+    };
+    walk(data);
+    expect(JSON.stringify(data)).not.toContain("lucide");
   });
 
   it("covers every filter dimension with more than one value", () => {

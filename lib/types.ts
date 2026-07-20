@@ -57,6 +57,14 @@ export type Job = {
   responsibilities: string[];
   requirements: string[];
   companyFacts: CompanyFact[];
+
+  /**
+   * "real" listings are scraped from climatechangejobs.com and carry a
+   * sourceUrl back to the original posting. Everything else is generated
+   * sample data. The UI must keep the two visibly distinguishable.
+   */
+  source?: "real" | "generated";
+  sourceUrl?: string;
 };
 
 export type AppStatus =

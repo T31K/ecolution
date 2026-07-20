@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Banknote, BadgeCheck, Clock } from "lucide-react";
+import { Banknote, BadgeCheck, Clock, ExternalLink } from "lucide-react";
 import { IMPACT_ICONS, IMPACT_LABELS, formatPostedAgo } from "@/lib/job-view";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Job } from "@/lib/types";
@@ -13,6 +13,7 @@ export function JobCard({ job, now }: { job: Job; now: number }) {
   const ImpactIcon = IMPACT_ICONS[job.impactArea];
   const isNew = now - new Date(job.postedAt).getTime() < RECENT_THRESHOLD_MS;
   const verified = job.views > 1500;
+  const isReal = job.source === "real";
 
   return (
     <Card
@@ -41,11 +42,19 @@ export function JobCard({ job, now }: { job: Job; now: number }) {
                 {job.title}
               </Link>
             </h2>
-            <div className="flex items-center gap-1.5 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1 text-on-surface-variant">
-              <ImpactIcon className="h-4 w-4" />
-              <span className="text-label-sm">
-                {IMPACT_LABELS[job.impactArea]}
-              </span>
+            <div className="flex flex-wrap items-center gap-2">
+              {isReal && (
+                <span className="flex items-center gap-1.5 rounded border border-secondary/30 bg-secondary/10 px-3 py-1 text-label-sm font-semibold text-secondary">
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Live posting
+                </span>
+              )}
+              <div className="flex items-center gap-1.5 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1 text-on-surface-variant">
+                <ImpactIcon className="h-4 w-4" />
+                <span className="text-label-sm">
+                  {IMPACT_LABELS[job.impactArea]}
+                </span>
+              </div>
             </div>
           </div>
 

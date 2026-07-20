@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight, ExternalLink } from "lucide-react";
 import { Container } from "./container";
 import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
 import { getSeed, getSeedNow } from "@/lib/seed";
@@ -12,9 +12,15 @@ import type { Job } from "@/lib/types";
  * needing an editorial "featured" flag in the seed.
  */
 function pickFeatured(jobs: Job[]): { hero: Job; rest: Job[] } {
-  const ranked = jobs
-    .slice()
+  // Real, live postings lead — they are the strongest thing on the board.
+  // Generated listings fill the remaining slots.
+  const real = jobs
+    .filter((job) => job.source === "real")
+    .sort((a, b) => b.postedAt.localeCompare(a.postedAt));
+  const generated = jobs
+    .filter((job) => job.source !== "real")
     .sort((a, b) => b.views - a.views || b.postedAt.localeCompare(a.postedAt));
+  const ranked = [...real, ...generated];
 
   const chosen: Job[] = [];
   const seenCompanies = new Set<string>();
@@ -83,9 +89,17 @@ export function FeaturedRoles() {
                   </p>
                 </div>
               </div>
-              <span className="climate-pulse rounded-full bg-secondary-container/50 px-3 py-1 text-label-sm text-secondary">
-                {IMPACT_LABELS[hero.impactArea]}
-              </span>
+              <div className="flex flex-col items-end gap-2">
+                {hero.source === "real" && (
+                  <span className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-label-sm font-semibold text-on-secondary">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Live posting
+                  </span>
+                )}
+                <span className="climate-pulse rounded-full bg-secondary-container/50 px-3 py-1 text-label-sm text-secondary">
+                  {IMPACT_LABELS[hero.impactArea]}
+                </span>
+              </div>
             </div>
 
             <p className="mb-stack-lg max-w-xl text-body-md text-on-surface-variant">
@@ -137,6 +151,11 @@ export function FeaturedRoles() {
               </h3>
               <p className="mb-4 text-body-sm text-on-surface-variant">
                 {job.company}
+                {job.source === "real" && (
+                  <span className="ml-2 rounded bg-secondary/10 px-1.5 py-0.5 text-[10px] font-bold text-secondary uppercase">
+                    Live
+                  </span>
+                )}
               </p>
               <div className="mb-stack-md flex flex-wrap gap-2">
                 <span className="rounded bg-surface-container px-2 py-0.5 text-[10px] font-bold text-on-surface-variant uppercase">

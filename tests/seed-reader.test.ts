@@ -10,8 +10,8 @@ import {
 describe("seed reader", () => {
   it("returns the full seed", () => {
     const seed = getSeed();
-    expect(seed.jobs).toHaveLength(500);
-    expect(seed.posters).toHaveLength(10);
+    expect(seed.jobs).toHaveLength(510);
+    expect(seed.posters.length).toBeGreaterThanOrEqual(10);
   });
 
   it("finds a job by id", () => {

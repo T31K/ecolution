@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed": "tsx scripts/seed/index.ts"
+    "seed": "tsx scripts/seed/index.ts",
+    "fetch:real-jobs": "tsx scripts/seed/fetch-real-jobs.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

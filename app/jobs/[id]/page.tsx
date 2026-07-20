@@ -57,6 +57,24 @@ export default async function JobPage({ params }: JobPageProps) {
 
           <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">
             <div className="flex flex-col gap-stack-lg lg:col-span-8">
+              {job.source === "real" && job.sourceUrl && (
+                <aside className="rounded-xl border border-secondary/30 bg-secondary/5 p-stack-md">
+                  <p className="text-body-sm text-on-surface-variant">
+                    This is a live vacancy sourced from{" "}
+                    <a
+                      href={job.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-secondary hover:underline"
+                    >
+                      climatechangejobs.com
+                    </a>
+                    . Details are shown as published by the employer; apply
+                    through the original posting.
+                  </p>
+                </aside>
+              )}
+
               <article className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-stack-md shadow-card md:p-stack-lg">
                 <h2 className="mb-stack-sm font-display text-headline-md text-primary">
                   About the Role
