@@ -29,6 +29,10 @@
   --color-surface-container-high: #dde9ff;
   --color-surface-container-highest: #d5e3fd;
 
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+
   --color-on-surface: #0d1c2f;
   --color-on-surface-variant: #424942;
   --color-on-background: #0d1c2f;

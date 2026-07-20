@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthGuard } from "@/components/auth-guard";
 import { EmployerSidebar } from "@/components/employer-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
@@ -14,9 +15,11 @@ export default function EmployerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <EmployerSidebar />
-      <SidebarInset className="bg-surface">{children}</SidebarInset>
-    </SidebarProvider>
+    <AuthGuard role="poster">
+      <SidebarProvider>
+        <EmployerSidebar />
+        <SidebarInset className="bg-surface">{children}</SidebarInset>
+      </SidebarProvider>
+    </AuthGuard>
   );
 }

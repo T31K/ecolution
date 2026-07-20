@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Container } from "./container";
 import { Menu, X } from "lucide-react";
+import { SessionMenu } from "./session-menu";
 
 const NAV_LINKS = [
   { label: "Browse Jobs", href: "/browse" },
@@ -49,12 +50,9 @@ export function SiteHeader() {
         </div>
 
         <div className="flex items-center gap-stack-md">
-          <Link
-            href="/auth"
-            className="hidden px-4 py-2 text-body-md font-medium text-on-surface-variant transition-colors hover:text-secondary lg:block"
-          >
-            Sign In
-          </Link>
+          <div className="hidden lg:block">
+            <SessionMenu />
+          </div>
           <button className="rounded-full bg-secondary px-6 py-2.5 text-label-md text-on-secondary transition-transform active:scale-95">
             Post a Job
           </button>
@@ -81,13 +79,7 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/auth"
-            className="text-body-md font-medium text-on-surface-variant hover:text-secondary"
-            onClick={() => setMenuOpen(false)}
-          >
-            Sign In
-          </Link>
+          <SessionMenu onNavigate={() => setMenuOpen(false)} />
         </Container>
       )}
     </header>

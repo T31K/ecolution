@@ -1,6 +1,7 @@
+import type { Session } from "./auth";
 import type { AppStatus, Application, Job } from "./types";
 
-export type Session = { userId: string; role: "seeker" | "poster" };
+export type { Session };
 
 export type Overlay = {
   applications: Application[];
@@ -52,6 +53,10 @@ export function setStatus(
 
 export function addListing(overlay: Overlay, job: Job): Overlay {
   return { ...overlay, listings: [...overlay.listings, job] };
+}
+
+export function setSession(overlay: Overlay, session: Session | null): Overlay {
+  return { ...overlay, session };
 }
 
 export function hasApplied(
