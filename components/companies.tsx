@@ -40,7 +40,7 @@ export function Companies() {
           {companies.map((company) => (
             <Link
               key={company.id}
-              href={`/browse?q=${encodeURIComponent(company.name)}`}
+              href={`/companies/${company.id}`}
               className="group flex flex-col items-center justify-center rounded-xl border border-outline-variant/10 bg-surface-container-lowest p-6 text-center transition-all hover:border-secondary/40 hover:shadow-md"
             >
               <Image

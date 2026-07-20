@@ -35,13 +35,13 @@ export function JobSidebar({
           ))}
         </dl>
 
-        <a
-          href="#"
+        <Link
+          href={`/companies/${job.posterId}`}
           className="mt-stack-md flex items-center gap-1 text-label-md text-secondary hover:underline"
         >
           View Company Page
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </a>
+        </Link>
       </section>
 
       <section className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-stack-md shadow-card">

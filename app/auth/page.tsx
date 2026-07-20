@@ -84,13 +84,19 @@ export default function AuthPage() {
 
       <p className="mt-stack-md text-center text-body-sm text-on-surface-variant">
         By clicking continue, you agree to our{" "}
-        <a href="#" className="font-semibold text-secondary hover:underline">
+        <Link
+          href="/legal/terms"
+          className="font-semibold text-secondary hover:underline"
+        >
           Terms of Service
-        </a>{" "}
+        </Link>{" "}
         and{" "}
-        <a href="#" className="font-semibold text-secondary hover:underline">
+        <Link
+          href="/legal/privacy"
+          className="font-semibold text-secondary hover:underline"
+        >
           Privacy Policy
-        </a>
+        </Link>
         .
       </p>
     </main>

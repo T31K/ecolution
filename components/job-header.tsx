@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
 import { ApplyButton } from "@/components/apply-button";
 import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
@@ -27,7 +28,12 @@ export function JobHeader({ job }: { job: Job }) {
               {job.title}
             </h1>
             <div className="mt-1 flex flex-wrap items-center gap-stack-sm">
-              <span className="font-semibold text-secondary">{job.company}</span>
+              <Link
+                href={`/companies/${job.posterId}`}
+                className="font-semibold text-secondary hover:underline"
+              >
+                {job.company}
+              </Link>
               <span className="text-label-sm text-outline">•</span>
               <span className="flex items-center gap-1 text-body-sm text-on-surface-variant">
                 <MapPin className="h-[18px] w-[18px]" aria-hidden="true" />
