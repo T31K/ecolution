@@ -7,13 +7,8 @@ import { Container } from "@/components/container";
 import { JobCard } from "@/components/job-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import {
-  filterJobs,
-  hasActiveFilters,
-  paginate,
-  parseFilters,
-} from "@/lib/filters";
-import { getSeed, getSeedNow } from "@/lib/seed";
+import { SALARY_FLOOR, hasActiveFilters, parseFilters } from "@/lib/filters";
+import { listJobs } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Browse Green Tech Jobs | Ecolution",
@@ -21,21 +16,37 @@ export const metadata: Metadata = {
     "Connect with leading climate tech firms and mission-driven startups engineering a sustainable world.",
 };
 
+const PER_PAGE = 12;
+
 type BrowsePageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const filters = parseFilters(await searchParams);
-  const now = getSeedNow().getTime();
-  const seed = getSeed();
+  const now = new Date().getTime();
 
-  const countries = [...new Set(seed.jobs.map((job) => job.country))].sort();
+  const response = await listJobs({
+    search: filters.q || undefined,
+    roleType: filters.roles.join(",") || undefined,
+    impactArea: filters.impactAreas.join(",") || undefined,
+    country: filters.countries.join(",") || undefined,
+    remote: filters.remote || undefined,
+    salaryMin: filters.salaryMin > SALARY_FLOOR ? filters.salaryMin : undefined,
+    sort: "newest",
+    page: filters.page,
+    perPage: PER_PAGE,
+  });
 
-  const matched = filterJobs(seed.jobs, filters).sort((a, b) =>
-    b.postedAt.localeCompare(a.postedAt),
-  );
-  const { items, current, totalPages, total } = paginate(matched, filters.page);
+  const { jobs: items, total, page: current } = response;
+  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+
+  // Options for the location filter come from the results on screen, plus any
+  // country already selected so its checkbox never vanishes mid-filter.
+  const countries = [
+    ...new Set([...items.map((job) => job.country), ...filters.countries]),
+  ].sort();
+
   const active = hasActiveFilters(filters);
 
   return (

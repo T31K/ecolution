@@ -12,8 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { setSession } from "@/lib/overlay";
-import { useOverlay } from "@/lib/store";
+import { useSession } from "@/lib/session";
 import {
   Sidebar,
   SidebarContent,
@@ -39,8 +38,8 @@ const NAV_ITEMS = [
 export function EmployerSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { overlay, update } = useOverlay();
-  const session = overlay.session;
+  const { session, signOut } = useSession();
+  const user = session?.user;
 
   return (
     <Sidebar collapsible="icon" className="border-outline-variant/30">
@@ -82,14 +81,14 @@ export function EmployerSidebar() {
       <SidebarFooter className="border-t border-outline-variant/30 p-3">
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-container/50 text-label-sm font-bold text-secondary">
-            {(session?.name ?? "EC").slice(0, 2).toUpperCase()}
+            {(user?.name ?? "EC").slice(0, 2).toUpperCase()}
           </span>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="truncate text-body-sm font-semibold text-on-surface">
-              {session?.name ?? "Employer"}
+              {user?.name ?? "Employer"}
             </p>
             <p className="truncate text-label-sm text-on-surface-variant">
-              {session?.email ?? "Admin Account"}
+              {user?.email ?? "Admin Account"}
             </p>
           </div>
           <Button
@@ -98,7 +97,7 @@ export function EmployerSidebar() {
             aria-label="Sign out"
             title="Sign out"
             onClick={() => {
-              update((current) => setSession(current, null));
+              signOut();
               router.push("/");
             }}
             className="ml-auto text-on-surface-variant hover:text-secondary group-data-[collapsible=icon]:hidden"

@@ -4,56 +4,47 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Loader2, Search } from "lucide-react";
-import {
-  getSeekerApplications,
-  type JobSummary,
-} from "@/app/account/actions";
-import { mergeApplications } from "@/lib/overlay";
-import { useOverlay } from "@/lib/store";
+import { ApiError, myApplications, type MyApplication } from "@/lib/api";
+import { useSession } from "@/lib/session";
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/status";
-import type { Application } from "@/lib/types";
 
 export function AccountSummary() {
-  const { overlay } = useOverlay();
-  const session = overlay.session;
+  const { session } = useSession();
 
-  const [seeded, setSeeded] = useState<Application[] | null>(null);
-  const [jobs, setJobs] = useState<JobSummary[]>([]);
+  const [applications, setApplications] = useState<MyApplication[] | null>(
+    null,
+  );
+  const [error, setError] = useState<string | null>(null);
 
-  const localJobIds = overlay.applications
-    .filter((application) => application.seekerId === session?.userId)
-    .map((application) => application.jobId)
-    .join(",");
+  const token = session?.token;
 
   useEffect(() => {
-    if (!session) return;
+    if (!token) return;
     let cancelled = false;
 
-    getSeekerApplications(
-      session.userId,
-      localJobIds ? localJobIds.split(",") : [],
-    ).then((result) => {
-      if (cancelled) return;
-      setSeeded(result.seeded);
-      setJobs(result.jobs);
-    });
+    myApplications(token)
+      .then((result) => {
+        if (cancelled) return;
+        setError(null);
+        setApplications(result.applications);
+      })
+      .catch((caught: unknown) => {
+        if (cancelled) return;
+        setError(
+          caught instanceof ApiError
+            ? caught.message
+            : "Could not load your applications.",
+        );
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [session, localJobIds]);
+  }, [token]);
 
-  const mine = seeded
-    ? mergeApplications(seeded, overlay).filter(
-        (application) => application.seekerId === session?.userId,
-      )
+  const sorted = applications
+    ? [...applications].sort((a, b) => b.appliedAt.localeCompare(a.appliedAt))
     : [];
-
-  const jobsById = new Map(jobs.map((job) => [job.id, job]));
-
-  const sorted = [...mine].sort((a, b) =>
-    b.appliedAt.localeCompare(a.appliedAt),
-  );
 
   return (
     <>
@@ -62,11 +53,15 @@ export function AccountSummary() {
           My Applications
         </h1>
         <p className="text-body-lg text-on-surface-variant">
-          Signed in as {session?.name} ({session?.email})
+          Signed in as {session?.user.name} ({session?.user.email})
         </p>
       </header>
 
-      {seeded === null ? (
+      {error ? (
+        <p role="alert" className="text-body-md font-semibold text-error">
+          {error}
+        </p>
+      ) : applications === null ? (
         <div className="flex items-center gap-3 text-on-surface-variant">
           <Loader2 className="h-5 w-5 animate-spin" />
           <span className="text-body-md">Loading your applications…</span>
@@ -96,44 +91,36 @@ export function AccountSummary() {
           </p>
           <ul className="flex flex-col gap-stack-md">
             {sorted.map((application) => {
-              const job = jobsById.get(application.jobId);
+              const job = application.job;
               return (
                 <li
                   key={application.id}
                   className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-card"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                    {job && (
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-container-high p-1.5">
-                        <Image
-                          src={job.companyLogo}
-                          alt={`${job.company} logo`}
-                          width={40}
-                          height={40}
-                          className="h-full w-full object-contain"
-                        />
-                      </div>
-                    )}
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-container-high p-1.5">
+                      <Image
+                        src={job.companyLogo}
+                        alt={`${job.company} logo`}
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
 
                     <div className="grow">
                       <h2 className="text-body-lg font-bold text-secondary">
-                        {job ? (
-                          <Link
-                            href={`/jobs/${job.id}`}
-                            className="hover:underline"
-                          >
-                            {job.title}
-                          </Link>
-                        ) : (
-                          application.jobId
-                        )}
+                        <Link
+                          href={`/jobs/${job.id}`}
+                          className="hover:underline"
+                        >
+                          {job.title}
+                        </Link>
                       </h2>
-                      {job && (
-                        <p className="text-body-sm text-on-surface-variant">
-                          {job.company} • {job.locationDisplay} •{" "}
-                          {job.salaryDisplay}
-                        </p>
-                      )}
+                      <p className="text-body-sm text-on-surface-variant">
+                        {job.company} • {job.locationDisplay} •{" "}
+                        {job.salaryDisplay}
+                      </p>
                       <p className="mt-1 text-label-sm text-on-surface-variant">
                         Applied{" "}
                         {new Date(application.appliedAt).toLocaleDateString(

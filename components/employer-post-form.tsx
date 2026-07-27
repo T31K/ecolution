@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { createJob } from "@/lib/api";
+import { useSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,25 +19,15 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { IMPACT_LABELS, ROLE_LABELS, SENIORITY_LABELS } from "@/lib/job-view";
-import { addListing } from "@/lib/overlay";
-import { useOverlay } from "@/lib/store";
-import type { ImpactArea, Job, RoleType, Seniority } from "@/lib/types";
+import type { ImpactArea, RoleType, Seniority } from "@/lib/types";
 
 const ROLE_TYPES = Object.keys(ROLE_LABELS) as RoleType[];
 const IMPACT_AREAS = Object.keys(IMPACT_LABELS) as ImpactArea[];
 const SENIORITIES = Object.keys(SENIORITY_LABELS) as Seniority[];
 
-function slugify(input: string) {
-  return input
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export function EmployerPostForm() {
   const router = useRouter();
-  const { overlay, update } = useOverlay();
-  const session = overlay.session;
+  const { session } = useSession();
 
   const [title, setTitle] = useState("");
   const [city, setCity] = useState("");
@@ -47,57 +39,65 @@ export function EmployerPostForm() {
   const [remote, setRemote] = useState("no");
   const [about, setAbout] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = title.trim() && city.trim() && about.trim();
+  const canSubmit = Boolean(title.trim() && city.trim() && about.trim());
 
-  const submit = (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!session || !canSubmit) return;
+    if (!session || !canSubmit || submitting) return;
     setSubmitting(true);
+    setError(null);
 
     const min = Number(salaryMin) || 0;
     const max = Number(salaryMax) || min;
     const isRemote = remote === "yes";
+    const company = session.user.company ?? session.user.name;
 
-    const job: Job = {
-      id: `${slugify(title)}-${slugify(session.name)}-${Date.now()}`,
-      title: title.trim(),
-      posterId: session.userId,
-      company: session.name,
-      companyLogo: `/img/companies/${session.userId}.jpg`,
-      companyLogoAlt: `${session.name} logo`,
-      salaryMin: min,
-      salaryMax: max,
-      currency: "USD",
-      city: city.trim(),
-      country: "US",
-      remote: isRemote,
-      roleType,
-      seniority,
-      impactArea,
-      postedAt: new Date().toISOString(),
-      views: 0,
-      salaryDisplay: `$${Math.round(min / 1000)}k – $${Math.round(max / 1000)}k`,
-      locationDisplay: isRemote
-        ? `${city.trim()} (Remote)`
-        : `${city.trim()} (On-site)`,
-      about: about.trim(),
-      impactSummary: `This role contributes directly to ${session.name}'s climate targets.`,
-      impactStats: [
-        { value: "New", label: "Listing" },
-        { value: "0", label: "Applicants" },
-        { value: IMPACT_LABELS[impactArea], label: "Focus" },
-      ],
-      responsibilities: [
-        "Responsibilities will be discussed during the first interview.",
-      ],
-      requirements: [`${SENIORITY_LABELS[seniority]} experience in this field.`],
-      companyFacts: [{ label: "Company", value: session.name }],
-    };
-
-    update((current) => addListing(current, job));
-    setSubmitting(false);
-    router.push("/employer");
+    try {
+      await createJob(session.token, {
+        title: title.trim(),
+        company,
+        salaryMin: min,
+        salaryMax: max,
+        currency: "USD",
+        city: city.trim(),
+        country: "US",
+        remote: isRemote,
+        roleType,
+        seniority,
+        impactArea,
+        // Display-only content the detail page renders as-is.
+        detail: {
+          about: about.trim(),
+          impactSummary: `This role contributes directly to ${company}'s climate targets.`,
+          impactStats: [
+            { value: "New", label: "Listing" },
+            { value: "0", label: "Applicants" },
+            { value: IMPACT_LABELS[impactArea], label: "Focus" },
+          ],
+          responsibilities: [
+            "Responsibilities will be discussed during the first interview.",
+          ],
+          requirements: [
+            `${SENIORITY_LABELS[seniority]} experience in this field.`,
+          ],
+          companyFacts: [{ label: "Company", value: company }],
+          ...(session.user.companyLogo
+            ? {
+                companyLogo: session.user.companyLogo,
+                companyLogoAlt: `${company} logo`,
+              }
+            : {}),
+        },
+      });
+      router.push("/employer");
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Could not publish the listing.",
+      );
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -260,6 +260,12 @@ export function EmployerPostForm() {
                 required
               />
             </div>
+
+            {error && (
+              <p className="text-body-sm text-error" role="alert">
+                {error}
+              </p>
+            )}
 
             <div className="flex justify-end gap-3">
               <Button

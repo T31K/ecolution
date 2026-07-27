@@ -1,60 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Clock, Loader2, MapPin, Plus } from "lucide-react";
-import { getEmployerData, type EmployerData } from "@/app/employer/actions";
+import { ArrowRight, Clock, MapPin, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  OverviewStatus,
+  useEmployerOverview,
+} from "@/components/employer-dashboard";
 import { IMPACT_LABELS, formatPostedAgo } from "@/lib/job-view";
-import { mergeApplications } from "@/lib/overlay";
-import { useOverlay } from "@/lib/store";
 
 export function EmployerListings() {
-  const { overlay } = useOverlay();
-  const session = overlay.session;
-  const [data, setData] = useState<EmployerData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { session, data, error, retry, loading } = useEmployerOverview();
 
-  useEffect(() => {
-    if (!session) return;
-    let cancelled = false;
-    getEmployerData(session.userId).then((result) => {
-      if (cancelled) return;
-      setData(result);
-      setLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [session]);
-
-  if (loading || !data) {
+  if (loading || error || !data) {
     return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="flex items-center gap-3 text-on-surface-variant">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="text-body-md">Loading listings…</span>
-        </div>
-      </div>
+      <OverviewStatus
+        loading={loading}
+        error={error}
+        retry={retry}
+        label="Loading listings…"
+      />
     );
   }
 
-  const localListings = overlay.listings.filter(
-    (job) => job.posterId === session?.userId,
-  );
-  const seededIds = new Set(data.listings.map((listing) => listing.id));
-
-  const applications = mergeApplications(
-    data.applicants.map((row) => row.application),
-    overlay,
-  );
+  const jobs = [...data.jobs].sort((a, b) => b.postedAt.localeCompare(a.postedAt));
 
   const countFor = (jobId: string) =>
-    applications.filter((application) => application.jobId === jobId).length;
+    data.applications.filter((application) => application.jobId === jobId)
+      .length;
 
-  const all = [...localListings, ...data.listings];
+  const company =
+    session?.user.company ?? session?.user.name ?? "your company";
 
   return (
     <main className="flex flex-col gap-stack-lg p-4 md:p-8">
@@ -64,8 +42,8 @@ export function EmployerListings() {
             My Jobs
           </h2>
           <p className="mt-1 text-body-md text-on-surface-variant">
-            {all.length} {all.length === 1 ? "listing" : "listings"} at{" "}
-            {data.company}
+            {jobs.length} {jobs.length === 1 ? "listing" : "listings"} at{" "}
+            {company}
           </p>
         </div>
         <Button variant="brand" size="pill" render={<Link href="/employer/post" />}>
@@ -75,7 +53,7 @@ export function EmployerListings() {
       </div>
 
       <div className="flex flex-col gap-stack-md">
-        {all.map((listing) => (
+        {jobs.map((listing) => (
           <Card
             key={listing.id}
             className="gap-0 border-outline-variant/30 bg-surface-container-lowest py-0 shadow-card"
@@ -91,7 +69,7 @@ export function EmployerListings() {
                       {listing.title}
                     </Link>
                   </h3>
-                  {!seededIds.has(listing.id) && (
+                  {listing.source === "posted" && (
                     <Badge className="bg-secondary text-label-sm text-on-secondary">
                       Posted by you
                     </Badge>

@@ -8,9 +8,10 @@ import {
   paginate,
   parseFilters,
 } from "@/lib/filters";
-import { getSeed } from "@/lib/seed";
+import seed from "../data/seed.json";
+import type { SeedData } from "@/lib/types";
 
-const jobs = getSeed().jobs;
+const jobs = (seed as SeedData).jobs;
 
 describe("parseFilters", () => {
   it("returns defaults for empty params", () => {

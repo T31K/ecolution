@@ -8,44 +8,52 @@ import { JobCard } from "@/components/job-card";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { IMPACT_ICONS, IMPACT_LABELS, ROLE_LABELS } from "@/lib/job-view";
-import { getJobsByPoster, getPosterById, getSeed, getSeedNow } from "@/lib/seed";
+import { listJobs } from "@/lib/api";
+import type { Job } from "@/lib/types";
 
 type CompanyPageProps = {
   params: Promise<{ id: string }>;
 };
 
-export function generateStaticParams() {
-  return getSeed().posters.map((poster) => ({ id: poster.id }));
+/**
+ * There is no companies endpoint — a company page is derived from its
+ * listings. `id` is the posterId that every job carries.
+ */
+async function getCompanyJobs(posterId: string): Promise<Job[]> {
+  const { jobs } = await listJobs({ perPage: 50, page: 1 });
+  return jobs
+    .filter((job) => job.posterId === posterId)
+    .sort((a, b) => b.postedAt.localeCompare(a.postedAt));
 }
 
 export async function generateMetadata({
   params,
 }: CompanyPageProps): Promise<Metadata> {
   const { id } = await params;
-  const poster = getPosterById(id);
+  const jobs = await getCompanyJobs(id);
+  const company = jobs[0]?.company;
 
-  if (!poster) return { title: "Company not found | Ecolution" };
+  if (!company) return { title: "Company not found | Ecolution" };
 
   return {
-    title: `${poster.company} — open roles | Ecolution`,
-    description: `Climate tech roles open at ${poster.company}.`,
+    title: `${company} — open roles | Ecolution`,
+    description: `Climate tech roles open at ${company}.`,
   };
 }
 
 export default async function CompanyPage({ params }: CompanyPageProps) {
   const { id } = await params;
-  const poster = getPosterById(id);
+  const jobs = await getCompanyJobs(id);
 
-  if (!poster) notFound();
+  // Without listings there is nothing to derive the company from.
+  if (jobs.length === 0) notFound();
 
-  const jobs = getJobsByPoster(poster.id).sort((a, b) =>
-    b.postedAt.localeCompare(a.postedAt),
-  );
-  const now = getSeedNow().getTime();
+  const now = new Date().getTime();
 
   // A company's facts and blurb live on its listings, which all share them.
   const sample = jobs[0];
-  const impactArea = sample?.impactArea;
+  const company = sample.company;
+  const impactArea = sample.impactArea;
   const ImpactIcon = impactArea ? IMPACT_ICONS[impactArea] : Briefcase;
 
   const cities = [...new Set(jobs.map((job) => job.city))];
@@ -62,8 +70,8 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
               <div className="flex items-center gap-stack-md">
                 <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container p-3">
                   <Image
-                    src={poster.companyLogo}
-                    alt={`${poster.company} logo`}
+                    src={sample.companyLogo}
+                    alt={`${company} logo`}
                     width={80}
                     height={80}
                     className="h-full w-full object-contain"
@@ -72,7 +80,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                 </div>
                 <div>
                   <h1 className="font-display text-headline-lg text-primary">
-                    {poster.company}
+                    {company}
                   </h1>
                   {impactArea && (
                     <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-secondary-container/50 px-3 py-1 text-label-sm text-on-secondary-container">
@@ -84,7 +92,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
               </div>
 
               <Link
-                href={`/browse?q=${encodeURIComponent(poster.company)}`}
+                href={`/browse?q=${encodeURIComponent(company)}`}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-6 py-3 text-label-md text-on-secondary transition-all hover:brightness-110 active:scale-95"
               >
                 See all {jobs.length} roles
@@ -92,16 +100,14 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
               </Link>
             </div>
 
-            {sample && (
-              <p className="mt-stack-md border-t border-outline-variant/20 pt-stack-md text-body-lg leading-relaxed text-on-surface-variant">
-                {poster.company} is{" "}
-                {sample.about
-                  .replace(`${poster.company} is `, "")
-                  .split(". As ")[0]
-                  .replace(/\.$/, "")}
-                .
-              </p>
-            )}
+            <p className="mt-stack-md border-t border-outline-variant/20 pt-stack-md text-body-lg leading-relaxed text-on-surface-variant">
+              {company} is{" "}
+              {sample.about
+                .replace(`${company} is `, "")
+                .split(". As ")[0]
+                .replace(/\.$/, "")}
+              .
+            </p>
           </section>
 
           <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">
@@ -109,24 +115,16 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
               <h2 className="mb-stack-md font-display text-headline-md text-primary">
                 Open roles
               </h2>
-              {jobs.length === 0 ? (
-                <div className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-stack-lg text-center shadow-card">
-                  <p className="text-body-md text-on-surface-variant">
-                    No roles open at {poster.company} right now.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-stack-md">
-                  {jobs.slice(0, 10).map((job) => (
-                    <JobCard key={job.id} job={job} now={now} />
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-1 gap-stack-md">
+                {jobs.slice(0, 10).map((job) => (
+                  <JobCard key={job.id} job={job} now={now} />
+                ))}
+              </div>
 
               {jobs.length > 10 && (
                 <div className="mt-stack-md text-center">
                   <Link
-                    href={`/browse?q=${encodeURIComponent(poster.company)}`}
+                    href={`/browse?q=${encodeURIComponent(company)}`}
                     className="inline-flex items-center gap-2 rounded-full border border-secondary px-6 py-3 text-label-md text-secondary transition-all hover:bg-secondary/5"
                   >
                     View the other {jobs.length - 10} roles
@@ -142,7 +140,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                   Company Profile
                 </h2>
                 <dl className="space-y-stack-md">
-                  {(sample?.companyFacts ?? []).map((fact, index, all) => (
+                  {sample.companyFacts.map((fact, index, all) => (
                     <div
                       key={fact.label}
                       className={`flex items-center justify-between py-2 ${
@@ -200,7 +198,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                   {roleTypes.map((role) => (
                     <Link
                       key={role}
-                      href={`/browse?role=${role}&q=${encodeURIComponent(poster.company)}`}
+                      href={`/browse?role=${role}&q=${encodeURIComponent(company)}`}
                       className="rounded-full bg-surface-container px-3 py-1 text-label-sm text-on-surface-variant transition-colors hover:bg-secondary-container hover:text-on-secondary-container"
                     >
                       {ROLE_LABELS[role]}

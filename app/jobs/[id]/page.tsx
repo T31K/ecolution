@@ -8,29 +8,17 @@ import { JobSidebar } from "@/components/job-sidebar";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { findSimilarJobs } from "@/lib/job-view";
-import { getJobById, getSeed } from "@/lib/seed";
+import { getJob, listJobs } from "@/lib/api";
 
 type JobPageProps = {
   params: Promise<{ id: string }>;
 };
 
-/**
- * Only the most recent listings are prerendered — 500 static pages would slow
- * every build for pages nobody opens. The rest render on demand.
- */
-export function generateStaticParams() {
-  return getSeed()
-    .jobs.slice()
-    .sort((a, b) => b.postedAt.localeCompare(a.postedAt))
-    .slice(0, 25)
-    .map((job) => ({ id: job.id }));
-}
-
 export async function generateMetadata({
   params,
 }: JobPageProps): Promise<Metadata> {
   const { id } = await params;
-  const job = getJobById(id);
+  const job = await getJob(id);
 
   if (!job) return { title: "Job not found | Ecolution" };
 
@@ -42,11 +30,15 @@ export async function generateMetadata({
 
 export default async function JobPage({ params }: JobPageProps) {
   const { id } = await params;
-  const job = getJobById(id);
+  const job = await getJob(id);
 
   if (!job) notFound();
 
-  const similarJobs = findSimilarJobs(job, getSeed().jobs);
+  const { jobs: candidates } = await listJobs({
+    impactArea: job.impactArea,
+    perPage: 12,
+  });
+  const similarJobs = findSimilarJobs(job, candidates);
 
   return (
     <>

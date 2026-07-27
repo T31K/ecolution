@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ArrowRight, ChevronRight, ExternalLink } from "lucide-react";
 import { Container } from "./container";
 import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
-import { getSeed, getSeedNow } from "@/lib/seed";
 import type { Job } from "@/lib/types";
 
 /**
@@ -36,10 +35,17 @@ function pickFeatured(jobs: Job[]): { hero: Job; rest: Job[] } {
   return { hero: chosen[0], rest: chosen.slice(1) };
 }
 
-export function FeaturedRoles() {
-  const seed = getSeed();
-  const now = getSeedNow();
-  const { hero, rest } = pickFeatured(seed.jobs);
+export function FeaturedRoles({
+  jobs,
+  totalJobs,
+}: {
+  jobs: Job[];
+  totalJobs: number;
+}) {
+  const now = new Date();
+  const { hero, rest } = pickFeatured(jobs);
+
+  if (!hero) return null;
 
   return (
     <section className="bg-surface py-stack-lg">
@@ -57,7 +63,7 @@ export function FeaturedRoles() {
             className="hidden items-center gap-1 font-bold text-secondary hover:underline md:flex"
             href="/browse"
           >
-            View all {seed.jobs.length.toLocaleString()} jobs
+            View all {totalJobs.toLocaleString()} jobs
             <ArrowRight className="h-5 w-5" />
           </Link>
         </div>

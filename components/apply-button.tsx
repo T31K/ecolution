@@ -16,38 +16,41 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { addApplication, hasApplied } from "@/lib/overlay";
-import { useOverlay } from "@/lib/store";
-import type { Application, Job } from "@/lib/types";
+import { ApiError, applyToJob } from "@/lib/api";
+import { useSession } from "@/lib/session";
+import type { Job } from "@/lib/types";
 
 /**
- * Applications are written to the localStorage overlay rather than a server,
- * per the PoC storage design. The poster dashboard reads the same overlay,
- * which is what makes the seeker -> poster round trip work in one browser.
+ * Applications are submitted to the backend. The endpoint upserts, so a
+ * resubmission is safe and both success and "already applied" (409) land in
+ * the same applied state.
  */
 export function ApplyButton({ job }: { job: Job }) {
   const router = useRouter();
-  const { overlay, update } = useOverlay();
+  const { session } = useSession();
   const [open, setOpen] = useState(false);
   const [coverNote, setCoverNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [applied, setApplied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const session = overlay.session;
-  const signedInAsSeeker = session?.role === "seeker";
+  const signedInAsSeeker = session?.user.role === "seeker";
 
-  // Real vacancies belong to real employers. Applying here would go nowhere,
-  // so send people to the original posting instead of faking a submission.
-  if (job.source === "real" && job.sourceUrl) {
+  // Scraped vacancies belong to real employers. Applying here would go
+  // nowhere, so send people to the original application page instead.
+  const externalUrl =
+    job.applyUrl ?? (job.source === "real" ? job.sourceUrl : undefined);
+  if (externalUrl) {
     return (
       <div className="flex w-full flex-col items-stretch gap-2 md:w-auto md:items-end">
         <Button
           variant="brand"
           size="pill"
           render={
-            <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer" />
+            <a href={externalUrl} target="_blank" rel="noopener noreferrer" />
           }
         >
-          Apply on climatechangejobs.com
+          Apply on company site
           <ExternalLink className="h-4 w-4" />
         </Button>
         <span className="text-label-sm text-on-surface-variant md:text-right">
@@ -56,9 +59,6 @@ export function ApplyButton({ job }: { job: Job }) {
       </div>
     );
   }
-  const applied = session
-    ? hasApplied(overlay.applications, session.userId, job.id)
-    : false;
 
   if (applied) {
     return (
@@ -79,21 +79,28 @@ export function ApplyButton({ job }: { job: Job }) {
     );
   }
 
-  const submit = () => {
+  const submit = async () => {
     if (!session) return;
     setSubmitting(true);
+    setError(null);
 
-    const application: Application = {
-      id: `app-local-${job.id}-${session.userId}`,
-      jobId: job.id,
-      seekerId: session.userId,
-      status: "new",
-      coverNote: coverNote.trim(),
-      appliedAt: new Date().toISOString(),
-    };
+    try {
+      await applyToJob(session.token, job.id, coverNote.trim());
+    } catch (err) {
+      // 409 means an application already exists — that's the applied state.
+      if (!(err instanceof ApiError && err.status === 409)) {
+        setSubmitting(false);
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Something went wrong. Please try again.",
+        );
+        return;
+      }
+    }
 
-    update((current) => addApplication(current, application));
     setSubmitting(false);
+    setApplied(true);
     setOpen(false);
     router.push("/account");
   };
@@ -126,12 +133,14 @@ export function ApplyButton({ job }: { job: Job }) {
             <dl className="rounded-lg bg-surface-container p-4 text-body-sm">
               <div className="flex justify-between">
                 <dt className="text-on-surface-variant">Applying as</dt>
-                <dd className="font-semibold text-on-surface">{session.name}</dd>
+                <dd className="font-semibold text-on-surface">
+                  {session.user.name}
+                </dd>
               </div>
               <div className="mt-1 flex justify-between">
                 <dt className="text-on-surface-variant">Email</dt>
                 <dd className="font-semibold text-on-surface">
-                  {session.email}
+                  {session.user.email}
                 </dd>
               </div>
             </dl>
@@ -151,6 +160,12 @@ export function ApplyButton({ job }: { job: Job }) {
                 placeholder="A short note to the hiring team…"
               />
             </div>
+
+            {error && (
+              <p role="alert" className="text-body-sm text-error">
+                {error}
+              </p>
+            )}
 
             <DialogFooter>
               <Button

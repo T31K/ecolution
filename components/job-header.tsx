@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
 import { ApplyButton } from "@/components/apply-button";
 import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
-import { getSeedNow } from "@/lib/seed";
 import type { Job } from "@/lib/types";
 
 export function JobHeader({ job }: { job: Job }) {
@@ -41,7 +40,7 @@ export function JobHeader({ job }: { job: Job }) {
               </span>
               <span className="flex items-center gap-1 text-body-sm text-on-surface-variant">
                 <Clock className="h-[18px] w-[18px]" aria-hidden="true" />
-                {formatPostedAgo(job.postedAt, getSeedNow())}
+                {formatPostedAgo(job.postedAt)}
               </span>
             </div>
           </div>

@@ -2,20 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, RotateCcw } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { setSession } from "@/lib/overlay";
-import { useOverlay } from "@/lib/store";
+import { useSession } from "@/lib/session";
 
 /**
  * Renders the signed-out call to action or the signed-in identity, depending
- * on the overlay session. Also carries the demo reset, since that is the
- * control someone reaches for when the demo state gets messy.
+ * on the API session.
  */
 export function SessionMenu({ onNavigate }: { onNavigate?: () => void }) {
   const router = useRouter();
-  const { overlay, update, reset } = useOverlay();
-  const session = overlay.session;
+  const { session, signOut } = useSession();
 
   if (!session) {
     return (
@@ -29,7 +26,12 @@ export function SessionMenu({ onNavigate }: { onNavigate?: () => void }) {
     );
   }
 
-  const home = session.role === "poster" ? "/employer" : "/account";
+  const { user } = session;
+  const home = user.role === "poster" ? "/employer" : "/account";
+  // Employers show up as their company, matching the old seed sessions where
+  // the display name held the company for posters.
+  const displayName =
+    user.role === "poster" ? (user.company ?? user.name) : user.name;
 
   return (
     <div className="flex items-center gap-2">
@@ -39,26 +41,12 @@ export function SessionMenu({ onNavigate }: { onNavigate?: () => void }) {
         className="flex items-center gap-2 rounded-full px-3 py-1.5 transition-colors hover:bg-surface-container"
       >
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary-container/60 text-label-sm font-bold text-on-secondary-container">
-          {session.name.slice(0, 2).toUpperCase()}
+          {displayName.slice(0, 2).toUpperCase()}
         </span>
         <span className="hidden text-body-sm font-semibold text-on-surface sm:block">
-          {session.name}
+          {displayName}
         </span>
       </Link>
-
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        aria-label="Reset demo data"
-        title="Reset demo data"
-        onClick={() => {
-          reset();
-          router.push("/");
-        }}
-        className="text-on-surface-variant hover:text-secondary"
-      >
-        <RotateCcw className="h-4 w-4" />
-      </Button>
 
       <Button
         variant="ghost"
@@ -66,7 +54,7 @@ export function SessionMenu({ onNavigate }: { onNavigate?: () => void }) {
         aria-label="Sign out"
         title="Sign out"
         onClick={() => {
-          update((current) => setSession(current, null));
+          signOut();
           onNavigate?.();
           router.push("/");
         }}

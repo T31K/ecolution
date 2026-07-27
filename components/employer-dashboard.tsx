@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -13,7 +13,8 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { getEmployerData, type EmployerData } from "@/app/employer/actions";
+import { employerOverview, type EmployerApplication } from "@/lib/api";
+import { useSession } from "@/lib/session";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,90 +29,134 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { IMPACT_LABELS, formatPostedAgo } from "@/lib/job-view";
-import { mergeApplications } from "@/lib/overlay";
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/status";
-import { useOverlay } from "@/lib/store";
+import type { Job } from "@/lib/types";
 
-export function EmployerDashboard() {
-  const { overlay } = useOverlay();
-  const session = overlay.session;
-  const [data, setData] = useState<EmployerData | null>(null);
-  const [loading, setLoading] = useState(true);
+export type EmployerOverviewData = {
+  jobs: Job[];
+  applications: EmployerApplication[];
+};
+
+/**
+ * One fetch feeds the whole employer area: dashboard stats, the listings
+ * page, and each job's applicant list all derive from this response.
+ * Mutations either refetch (retry) or patch local state via setData.
+ */
+export function useEmployerOverview() {
+  const { session } = useSession();
+  const token = session?.token ?? null;
+  const [data, setData] = useState<EmployerOverviewData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    if (!session) return;
+    if (!token) return;
     let cancelled = false;
-    getEmployerData(session.userId).then((result) => {
-      if (cancelled) return;
-      setData(result);
-      setLoading(false);
-    });
+    employerOverview(token)
+      .then((result) => {
+        if (cancelled) return;
+        setData({ jobs: result.jobs, applications: result.applications });
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setError(
+          err instanceof Error ? err.message : "Something went wrong loading your data.",
+        );
+      });
     return () => {
       cancelled = true;
     };
-  }, [session]);
+  }, [token, reloadKey]);
 
-  if (loading || !data) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-8">
+  const retry = useCallback(() => {
+    setError(null);
+    setReloadKey((key) => key + 1);
+  }, []);
+
+  const loading = data === null && error === null;
+
+  return { session, token, data, setData, error, retry, loading };
+}
+
+/** Shared loading / error panel so every employer pane reads the same. */
+export function OverviewStatus({
+  loading,
+  error,
+  retry,
+  label,
+}: {
+  loading: boolean;
+  error: string | null;
+  retry: () => void;
+  label: string;
+}) {
+  return (
+    <div className="flex flex-1 items-center justify-center p-8">
+      {error ? (
+        <div className="flex flex-col items-center gap-3 text-center">
+          <p className="text-body-md text-on-surface-variant">{error}</p>
+          <Button variant="brandOutline" size="pill-sm" onClick={retry}>
+            Try again
+          </Button>
+        </div>
+      ) : loading ? (
         <div className="flex items-center gap-3 text-on-surface-variant">
           <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="text-body-md">Loading your dashboard…</span>
+          <span className="text-body-md">{label}</span>
         </div>
-      </div>
+      ) : null}
+    </div>
+  );
+}
+
+export function EmployerDashboard() {
+  const { data, error, retry, loading } = useEmployerOverview();
+
+  if (loading || error || !data) {
+    return (
+      <OverviewStatus
+        loading={loading}
+        error={error}
+        retry={retry}
+        label="Loading your dashboard…"
+      />
     );
   }
 
-  // Listings this poster created in-session sit on top of the seeded ones.
-  const localListings = overlay.listings.filter(
-    (job) => job.posterId === session?.userId,
+  const jobs = [...data.jobs].sort((a, b) => b.postedAt.localeCompare(a.postedAt));
+  const applications = [...data.applications].sort((a, b) =>
+    b.appliedAt.localeCompare(a.appliedAt),
   );
 
-  const seededJobIds = new Set(data.listings.map((listing) => listing.id));
-  const ownedJobIds = new Set([
-    ...seededJobIds,
-    ...localListings.map((job) => job.id),
-  ]);
-
-  // Seeded applications plus anything submitted in this browser, with status
-  // patches applied — this is what makes the seeker round trip visible.
-  const allApplications = mergeApplications(
-    data.applicants.map((row) => row.application),
-    overlay,
-  ).filter((application) => ownedJobIds.has(application.jobId));
-
-  const seekerByApplication = new Map(
-    data.applicants.map((row) => [row.application.id, row]),
-  );
-
-  const totalApplicants = allApplications.length;
-  const newThisSession = overlay.applications.filter((application) =>
-    ownedJobIds.has(application.jobId),
+  const totalViews = jobs.reduce((sum, job) => sum + job.views, 0);
+  const activeListings = jobs.length;
+  const totalApplicants = applications.length;
+  const awaitingReview = applications.filter(
+    (application) => application.status === "new",
   ).length;
-
-  const activeListings = data.listings.length + localListings.length;
   const slotsUsed = Math.min(activeListings, 15);
+
+  const applicantCountFor = (jobId: string) =>
+    applications.filter((application) => application.jobId === jobId).length;
 
   const stats = [
     {
       label: "Total Listing Views",
-      value: data.totalViews.toLocaleString(),
+      value: totalViews.toLocaleString(),
       caption: `across ${activeListings} listings`,
       icon: Eye,
     },
     {
       label: "Active Listings",
       value: activeListings.toLocaleString(),
-      caption: localListings.length
-        ? `${localListings.length} posted this session`
-        : "all currently open",
+      caption: "all currently open",
       icon: Plus,
     },
     {
       label: "Total Applicants",
       value: totalApplicants.toLocaleString(),
-      caption: newThisSession
-        ? `+${newThisSession} new this session`
+      caption: awaitingReview
+        ? `${awaitingReview} awaiting review`
         : "no new applications yet",
       icon: Users,
     },
@@ -159,79 +204,72 @@ export function EmployerDashboard() {
         </div>
 
         <div className="flex flex-col gap-stack-md">
-          {[...localListings, ...data.listings].slice(0, 5).map((listing) => {
-            const applicationCount = allApplications.filter(
-              (application) => application.jobId === listing.id,
-            ).length;
-            const isLocal = !seededJobIds.has(listing.id);
-
-            return (
-              <Card
-                key={listing.id}
-                className="gap-0 border-outline-variant/30 bg-surface-container-lowest py-0 shadow-card"
-              >
-                <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="min-w-0">
-                    <div className="mb-1 flex flex-wrap items-center gap-2">
-                      <h3 className="text-body-lg font-bold text-secondary">
-                        <Link
-                          href={`/employer/jobs/${listing.id}`}
-                          className="hover:underline"
-                        >
-                          {listing.title}
-                        </Link>
-                      </h3>
-                      {isLocal && (
-                        <Badge className="bg-secondary text-label-sm text-on-secondary">
-                          Posted by you
-                        </Badge>
-                      )}
-                      <Badge className="bg-secondary-container/60 text-label-sm text-on-secondary-container">
-                        {IMPACT_LABELS[listing.impactArea]}
+          {jobs.slice(0, 5).map((listing) => (
+            <Card
+              key={listing.id}
+              className="gap-0 border-outline-variant/30 bg-surface-container-lowest py-0 shadow-card"
+            >
+              <CardContent className="flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="min-w-0">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
+                    <h3 className="text-body-lg font-bold text-secondary">
+                      <Link
+                        href={`/employer/jobs/${listing.id}`}
+                        className="hover:underline"
+                      >
+                        {listing.title}
+                      </Link>
+                    </h3>
+                    {listing.source === "posted" && (
+                      <Badge className="bg-secondary text-label-sm text-on-secondary">
+                        Posted by you
                       </Badge>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-4 text-on-surface-variant">
-                      <span className="flex items-center gap-1 text-body-sm">
-                        <MapPin className="h-4 w-4 text-outline" />
-                        {listing.locationDisplay}
-                      </span>
-                      <span className="flex items-center gap-1 text-body-sm">
-                        <Clock className="h-4 w-4 text-outline" />
-                        {formatPostedAgo(listing.postedAt)}
-                      </span>
-                    </div>
+                    )}
+                    <Badge className="bg-secondary-container/60 text-label-sm text-on-secondary-container">
+                      {IMPACT_LABELS[listing.impactArea]}
+                    </Badge>
                   </div>
+                  <div className="flex flex-wrap items-center gap-4 text-on-surface-variant">
+                    <span className="flex items-center gap-1 text-body-sm">
+                      <MapPin className="h-4 w-4 text-outline" />
+                      {listing.locationDisplay}
+                    </span>
+                    <span className="flex items-center gap-1 text-body-sm">
+                      <Clock className="h-4 w-4 text-outline" />
+                      {formatPostedAgo(listing.postedAt)}
+                    </span>
+                  </div>
+                </div>
 
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <p className="text-label-sm text-on-surface-variant">
-                        Views
-                      </p>
-                      <p className="text-body-md font-bold text-on-surface">
-                        {listing.views.toLocaleString()}
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-label-sm text-on-surface-variant">
-                        Applicants
-                      </p>
-                      <p className="text-body-md font-bold text-on-surface">
-                        {applicationCount}
-                      </p>
-                    </div>
-                    <Button
-                      variant="brandOutline"
-                      size="pill-sm"
-                      render={<Link href={`/employer/jobs/${listing.id}`} />}
-                    >
-                      Review
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <p className="text-label-sm text-on-surface-variant">
+                      Views
+                    </p>
+                    <p className="text-body-md font-bold text-on-surface">
+                      {listing.views.toLocaleString()}
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  <div className="text-center">
+                    <p className="text-label-sm text-on-surface-variant">
+                      Applicants
+                    </p>
+                    <p className="text-body-md font-bold text-on-surface">
+                      {applicantCountFor(listing.id)}
+                    </p>
+                  </div>
+                  <Button
+                    variant="brandOutline"
+                    size="pill-sm"
+                    render={<Link href={`/employer/jobs/${listing.id}`} />}
+                  >
+                    Review
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
@@ -243,7 +281,7 @@ export function EmployerDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {allApplications.length === 0 ? (
+            {applications.length === 0 ? (
               <p className="text-body-md text-on-surface-variant">
                 No applications yet.
               </p>
@@ -266,72 +304,55 @@ export function EmployerDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {allApplications.slice(0, 8).map((application) => {
-                    const row = seekerByApplication.get(application.id);
-                    const isLocal = !row;
-                    const name = row?.seeker.name ?? session?.name ?? "Applicant";
-                    const title =
-                      row?.jobTitle ??
-                      localListings.find((job) => job.id === application.jobId)
-                        ?.title ??
-                      data.listings.find(
-                        (listing) => listing.id === application.jobId,
-                      )?.title ??
-                      application.jobId;
-
-                    return (
-                      <TableRow
-                        key={application.id}
-                        className="border-outline-variant/30"
-                      >
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-label-sm font-bold text-on-surface-variant">
-                              {name
-                                .split(" ")
-                                .map((part) => part[0])
-                                .slice(0, 2)
-                                .join("")}
-                            </span>
-                            <div>
-                              <p className="text-body-sm font-semibold text-on-surface">
-                                {name}
-                              </p>
-                              <p className="text-label-sm text-on-surface-variant">
-                                {isLocal
-                                  ? "Applied just now"
-                                  : `${row.seeker.yearsExperience} years exp.`}
-                              </p>
-                            </div>
+                  {applications.slice(0, 8).map((application) => (
+                    <TableRow
+                      key={application.id}
+                      className="border-outline-variant/30"
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-container-high text-label-sm font-bold text-on-surface-variant">
+                            {application.seeker.name
+                              .split(" ")
+                              .map((part) => part[0])
+                              .slice(0, 2)
+                              .join("")}
+                          </span>
+                          <div>
+                            <p className="text-body-sm font-semibold text-on-surface">
+                              {application.seeker.name}
+                            </p>
+                            <p className="text-label-sm text-on-surface-variant">
+                              {application.seeker.headline ??
+                                application.seeker.email}
+                            </p>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-body-sm text-on-surface-variant">
-                          {title}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            className={`${STATUS_STYLES[application.status]} rounded-full px-3`}
-                          >
-                            {STATUS_LABELS[application.status]}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="link"
-                            size="sm"
-                            render={
-                              <Link
-                                href={`/employer/jobs/${application.jobId}`}
-                              />
-                            }
-                            className="text-label-md text-secondary"
-                          >
-                            Review
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-body-sm text-on-surface-variant">
+                        {application.jobTitle}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={`${STATUS_STYLES[application.status]} rounded-full px-3`}
+                        >
+                          {STATUS_LABELS[application.status]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          render={
+                            <Link href={`/employer/jobs/${application.jobId}`} />
+                          }
+                          className="text-label-md text-secondary"
+                        >
+                          Review
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             )}
@@ -388,7 +409,7 @@ export function EmployerDashboard() {
                 Current Plan
               </p>
               <p className="mb-4 text-body-lg font-bold text-secondary">
-                {data.plan}
+                Starter
               </p>
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-label-sm text-on-surface-variant">

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ROLE_LABELS, formatPostedAgo } from "@/lib/job-view";
-import { getSeedNow } from "@/lib/seed";
 import type { Job } from "@/lib/types";
 
 export function JobSidebar({
@@ -72,7 +71,7 @@ export function JobSidebar({
                     {similar.remote ? "Remote" : "On-site"}
                   </span>
                   <span className="text-[10px] font-medium text-outline">
-                    {formatPostedAgo(similar.postedAt, getSeedNow())}
+                    {formatPostedAgo(similar.postedAt)}
                   </span>
                 </div>
               </Link>

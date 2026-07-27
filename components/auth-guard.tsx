@@ -3,13 +3,13 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { useOverlay } from "@/lib/store";
+import { useSession } from "@/lib/session";
 
 /**
- * Client-side only, and therefore NOT a security boundary — the seed ships no
- * secrets worth guarding and anyone can navigate straight past this. It exists
- * so the demo behaves like a real product, nothing more. Replace with a
- * server-side session check before any real account exists.
+ * Client-side only, and therefore NOT a security boundary — the API enforces
+ * authorization on every request; this exists so signed-out visitors land on
+ * the sign-in form instead of an empty page. The session hydrates from
+ * storage after mount, so the first render always shows the spinner.
  */
 export function AuthGuard({
   role,
@@ -19,18 +19,17 @@ export function AuthGuard({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { overlay } = useOverlay();
-  const session = overlay.session;
+  const { session } = useSession();
 
-  const allowed = session?.role === role;
+  const allowed = session?.user.role === role;
 
   useEffect(() => {
     if (!session) {
       router.replace("/auth");
-    } else if (session.role !== role) {
+    } else if (session.user.role !== role) {
       // Signed in, but as the other persona — send them where they belong
       // rather than bouncing them to a sign-in form they don't need.
-      router.replace(session.role === "poster" ? "/employer" : "/account");
+      router.replace(session.user.role === "poster" ? "/employer" : "/account");
     }
   }, [session, role, router]);
 

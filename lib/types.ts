@@ -63,8 +63,10 @@ export type Job = {
    * sourceUrl back to the original posting. Everything else is generated
    * sample data. The UI must keep the two visibly distinguishable.
    */
-  source?: "real" | "generated";
+  source?: "real" | "generated" | "posted";
   sourceUrl?: string;
+  /** Scraped listings link out to the original application page. */
+  applyUrl?: string;
 };
 
 export type AppStatus =

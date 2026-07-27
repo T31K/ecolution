@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { getEmployerData, type EmployerData } from "@/app/employer/actions";
+import { updateApplicationStatus } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,53 +14,65 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mergeApplications, setStatus } from "@/lib/overlay";
+import {
+  OverviewStatus,
+  useEmployerOverview,
+} from "@/components/employer-dashboard";
 import { STATUS_LABELS, STATUS_ORDER, STATUS_STYLES } from "@/lib/status";
-import { useOverlay } from "@/lib/store";
 import type { AppStatus } from "@/lib/types";
 
 export function EmployerJobApplicants({ jobId }: { jobId: string }) {
-  const { overlay, update } = useOverlay();
-  const session = overlay.session;
-  const [data, setData] = useState<EmployerData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { token, data, setData, error, retry, loading } = useEmployerOverview();
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!session) return;
-    let cancelled = false;
-    getEmployerData(session.userId).then((result) => {
-      if (cancelled) return;
-      setData(result);
-      setLoading(false);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [session]);
-
-  if (loading || !data) {
+  if (loading || error || !data) {
     return (
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="flex items-center gap-3 text-on-surface-variant">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span className="text-body-md">Loading applicants…</span>
-        </div>
-      </div>
+      <OverviewStatus
+        loading={loading}
+        error={error}
+        retry={retry}
+        label="Loading applicants…"
+      />
     );
   }
 
-  const localListing = overlay.listings.find((job) => job.id === jobId);
-  const seededListing = data.listings.find((listing) => listing.id === jobId);
-  const title = localListing?.title ?? seededListing?.title ?? jobId;
+  const job = data.jobs.find((candidate) => candidate.id === jobId);
+  const title = job?.title ?? jobId;
 
-  const applications = mergeApplications(
-    data.applicants.map((row) => row.application),
-    overlay,
-  ).filter((application) => application.jobId === jobId);
+  const applications = data.applications
+    .filter((application) => application.jobId === jobId)
+    .sort((a, b) => b.appliedAt.localeCompare(a.appliedAt));
 
-  const seekerByApplication = new Map(
-    data.applicants.map((row) => [row.application.id, row.seeker]),
-  );
+  const changeStatus = async (applicationId: string, status: AppStatus) => {
+    if (!token || savingId) return;
+    const previous = data;
+    // Optimistic: flip the pill immediately, roll back if the server refuses.
+    setData((current) =>
+      current
+        ? {
+            ...current,
+            applications: current.applications.map((application) =>
+              application.id === applicationId
+                ? { ...application, status }
+                : application,
+            ),
+          }
+        : current,
+    );
+    setSavingId(applicationId);
+    setSaveError(null);
+    try {
+      await updateApplicationStatus(token, applicationId, status);
+    } catch (err: unknown) {
+      setData(previous);
+      setSaveError(
+        err instanceof Error ? err.message : "Could not update the status.",
+      );
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   return (
     <main className="flex flex-col gap-stack-lg p-4 md:p-8">
@@ -81,6 +93,12 @@ export function EmployerJobApplicants({ jobId }: { jobId: string }) {
         </p>
       </div>
 
+      {saveError && (
+        <p className="text-body-sm text-error" role="alert">
+          {saveError}
+        </p>
+      )}
+
       {applications.length === 0 ? (
         <Card className="border-outline-variant/30 bg-surface-container-lowest shadow-card">
           <CardContent className="py-stack-lg text-center">
@@ -95,8 +113,7 @@ export function EmployerJobApplicants({ jobId }: { jobId: string }) {
       ) : (
         <div className="flex flex-col gap-stack-md">
           {applications.map((application) => {
-            const seeker = seekerByApplication.get(application.id);
-            const name = seeker?.name ?? session?.name ?? "Applicant";
+            const name = application.seeker.name || "Applicant";
 
             return (
               <Card
@@ -117,18 +134,21 @@ export function EmployerJobApplicants({ jobId }: { jobId: string }) {
                         <p className="text-body-lg font-bold text-on-surface">
                           {name}
                         </p>
-                        <p className="text-body-sm text-on-surface-variant">
-                          {seeker
-                            ? `${seeker.headline} • ${seeker.yearsExperience} years`
-                            : "Applied in this session"}
-                        </p>
+                        {application.seeker.headline && (
+                          <p className="text-body-sm text-on-surface-variant">
+                            {application.seeker.headline}
+                          </p>
+                        )}
                         <p className="text-label-sm text-outline">
-                          {seeker?.email ?? session?.email}
+                          {application.seeker.email}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
+                      {savingId === application.id && (
+                        <Loader2 className="h-4 w-4 animate-spin text-on-surface-variant" />
+                      )}
                       <Badge
                         className={`${STATUS_STYLES[application.status]} rounded-full px-3`}
                       >
@@ -137,9 +157,7 @@ export function EmployerJobApplicants({ jobId }: { jobId: string }) {
                       <Select
                         value={application.status}
                         onValueChange={(value) =>
-                          update((current) =>
-                            setStatus(current, application.id, value as AppStatus),
-                          )
+                          void changeStatus(application.id, value as AppStatus)
                         }
                       >
                         <SelectTrigger

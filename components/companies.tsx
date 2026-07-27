@@ -1,25 +1,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "./container";
-import { getSeed } from "@/lib/seed";
+import type { Job } from "@/lib/types";
 
-export function Companies() {
-  const seed = getSeed();
-
+export function Companies({ jobs }: { jobs: Job[] }) {
   // Ranked by how many roles each is hiring for, so the row reflects the
-  // board rather than a hardcoded list that can drift from the data.
-  const counts = new Map<string, number>();
-  for (const job of seed.jobs) {
-    counts.set(job.posterId, (counts.get(job.posterId) ?? 0) + 1);
+  // board rather than a hardcoded list that can drift from the data. The
+  // company card is derived from its listings — no separate directory.
+  const byPoster = new Map<
+    string,
+    { id: string; name: string; logo: string; openRoles: number }
+  >();
+  for (const job of jobs) {
+    const existing = byPoster.get(job.posterId);
+    if (existing) existing.openRoles += 1;
+    else
+      byPoster.set(job.posterId, {
+        id: job.posterId,
+        name: job.company,
+        logo: job.companyLogo,
+        openRoles: 1,
+      });
   }
 
-  const companies = seed.posters
-    .map((poster) => ({
-      id: poster.id,
-      name: poster.company,
-      logo: poster.companyLogo,
-      openRoles: counts.get(poster.id) ?? 0,
-    }))
+  const companies = [...byPoster.values()]
     .sort((a, b) => b.openRoles - a.openRoles)
     .slice(0, 6);
 

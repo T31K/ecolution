@@ -7,7 +7,8 @@ import {
   formatPostedAgo,
   jobChips,
 } from "@/lib/job-view";
-import { getSeed } from "@/lib/seed";
+import seed from "../data/seed.json";
+import type { SeedData } from "@/lib/types";
 import type { Job } from "@/lib/types";
 
 const NOW = new Date("2026-07-20T12:00:00Z");
@@ -47,7 +48,7 @@ describe("formatPostedAgo", () => {
 
 describe("label maps", () => {
   it("covers every impact area used in the seed", () => {
-    for (const job of getSeed().jobs) {
+    for (const job of (seed as SeedData).jobs) {
       expect(IMPACT_LABELS[job.impactArea]).toBeTruthy();
       expect(IMPACT_ICONS[job.impactArea]).toBeTruthy();
       expect(ROLE_LABELS[job.roleType]).toBeTruthy();
@@ -57,7 +58,7 @@ describe("label maps", () => {
 
 describe("jobChips", () => {
   it("returns three renderable chips", () => {
-    const job = getSeed().jobs[0];
+    const job = (seed as SeedData).jobs[0];
     const chips = jobChips(job);
     expect(chips).toHaveLength(3);
     for (const chip of chips) expect(chip.length).toBeGreaterThan(0);
@@ -65,7 +66,7 @@ describe("jobChips", () => {
 });
 
 describe("findSimilarJobs", () => {
-  const jobs = getSeed().jobs;
+  const jobs = (seed as SeedData).jobs;
 
   it("never returns the job itself", () => {
     const job = jobs[0];
