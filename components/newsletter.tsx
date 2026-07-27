@@ -10,11 +10,11 @@ export function Newsletter() {
       <div className="relative overflow-hidden rounded-[2rem] bg-primary-container p-stack-lg text-center md:p-24">
         <div className="relative z-10">
           <h2 className="mb-6 font-display text-display-mobile text-on-primary md:text-headline-lg">
-            Stay informed on climate careers
+            The Best Climate Jobs. Delivered Twice a Week.
           </h2>
           <p className="mx-auto mb-10 max-w-xl text-body-lg text-on-primary-container">
-            Get a weekly digest of high-impact roles, climate tech news, and
-            career advice directly in your inbox.
+            Skip the search. We hand-pick the best climate jobs and deliver
+            them to your inbox twice a week.
           </p>
           <form
             className="mx-auto flex max-w-md flex-col gap-4 md:flex-row"
