@@ -125,7 +125,12 @@ async function captureFromActiveTab() {
     });
     chrome.action.setBadgeBackgroundColor({ color: "#16a34a" });
     chrome.action.setBadgeText({ text: "✓" });
-    showToast(tab.id, "ok", "Job captured ✓", `${data.job.title} @ ${data.job.company}`);
+    showToast(
+      tab.id,
+      "ok",
+      data.duplicate ? "Already captured — updated ✓" : "Job captured ✓",
+      `${data.job.title} @ ${data.job.company}`,
+    );
   } catch (err) {
     chrome.action.setBadgeBackgroundColor({ color: "#dc2626" });
     chrome.action.setBadgeText({ text: "✗" });
