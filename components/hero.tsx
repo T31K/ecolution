@@ -54,7 +54,7 @@ export function Hero({
   return (
     <section className="relative overflow-hidden pt-20 pb-40">
       {/* Globe sits behind the copy and search as a background layer. */}
-      <div className="pointer-events-none absolute top-[16%] left-1/2 h-[42rem] w-[42rem] -translate-x-1/2 opacity-40 blur-[2px] md:h-[56rem] md:w-[56rem]">
+      <div className="pointer-events-none absolute top-[16%] left-1/2 h-[42rem] w-[42rem] -translate-x-1/2 opacity-30 md:h-[56rem] md:w-[56rem]">
         <HeroGlobe locations={locations} />
       </div>
       <Container className="relative z-10">
