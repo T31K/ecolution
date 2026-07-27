@@ -57,26 +57,7 @@ export function WhyClimateTech() {
               />
               {/* Same treatment as the auth page: primary-container scrim so
                   white type stays legible over the bright sky. */}
-              <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/25 to-transparent" />
-              <figcaption className="absolute right-6 bottom-6 left-6 rounded-xl border border-white/15 bg-white/10 p-stack-md backdrop-blur-md">
-                <blockquote className="mb-stack-sm text-body-md leading-relaxed text-white italic">
-                  &ldquo;I wanted my career to mean more than just bottom lines.
-                  Decarbon Jobs helped me find a lead engineering role at a
-                  carbon removal startup where I feel like I&rsquo;m actually
-                  saving the world.&rdquo;
-                </blockquote>
-                <div className="flex items-center gap-stack-sm">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-label-md font-bold text-on-secondary-container">
-                    SJ
-                  </span>
-                  <div>
-                    <p className="text-label-md text-white">Sarah J.</p>
-                    <p className="text-label-sm text-secondary-container">
-                      Lead Engineer @ Heirloom
-                    </p>
-                  </div>
-                </div>
-              </figcaption>
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/25 to-transparent" />
             </figure>
           </div>
         </div>
