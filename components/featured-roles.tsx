@@ -198,10 +198,11 @@ export function FeaturedRoles({
         <div className="mt-stack-lg flex justify-center">
           <Link
             href="/browse"
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-10 py-4 text-body-md font-bold text-on-primary shadow-raised transition-all hover:bg-secondary hover:shadow-lg active:scale-95"
+            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-primary to-secondary px-12 py-5 text-body-lg font-bold text-on-primary shadow-[0_12px_40px_rgba(0,108,73,0.35)] transition-all hover:shadow-[0_16px_50px_rgba(0,108,73,0.5)] hover:brightness-110 active:scale-95"
           >
-            View all {totalJobs.toLocaleString()} jobs
-            <ArrowRight className="h-5 w-5" />
+            <span className="flex h-2.5 w-2.5 animate-pulse rounded-full bg-secondary-container" />
+            Explore all {totalJobs.toLocaleString()} climate jobs
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1.5" />
           </Link>
         </div>
       </Container>

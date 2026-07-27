@@ -36,10 +36,12 @@ export function WhyClimateTech() {
               while the top of the photo stays bright. */}
           <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/30 to-primary/10" />
 
-          <div className="relative z-10 flex min-h-[34rem] flex-col justify-between gap-stack-lg p-stack-md md:p-stack-lg">
-            <h2 className="max-w-xl font-display text-headline-lg text-white drop-shadow-md">
-              Why work in Climate Tech?
-            </h2>
+          <div className="relative z-10 flex min-h-[34rem] flex-col gap-stack-lg p-stack-md md:p-stack-lg">
+            <div className="flex flex-1 items-center justify-center">
+              <h2 className="text-center font-display text-headline-lg text-white drop-shadow-md">
+                Why work in Climate Tech?
+              </h2>
+            </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {BENEFITS.map(({ icon: BenefitIcon, title, body }) => (
