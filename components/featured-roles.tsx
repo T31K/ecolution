@@ -121,7 +121,7 @@ export function FeaturedRoles({
         </div>
 
         <div className="grid grid-cols-1 gap-gutter md:grid-cols-12">
-          <article className="group relative overflow-hidden rounded-xl border border-transparent bg-surface-container-lowest p-stack-lg shadow-card transition-all hover:border-secondary md:col-span-8">
+          <article className="group relative overflow-hidden rounded-xl border-2 border-secondary/30 bg-surface-container-lowest p-stack-lg shadow-card transition-all hover:border-secondary md:col-span-8">
             <div className="mb-6 flex items-start justify-between">
               <div className="flex gap-stack-md">
                 <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-outline-variant/40 bg-surface-container">
@@ -146,17 +146,6 @@ export function FeaturedRoles({
                     {hero.company} • {hero.locationDisplay}
                   </p>
                 </div>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                {hero.source === "real" && (
-                  <span className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-label-sm font-semibold text-on-secondary">
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Live posting
-                  </span>
-                )}
-                <span className="climate-pulse rounded-full bg-secondary-container/50 px-3 py-1 text-label-sm text-secondary">
-                  {IMPACT_LABELS[hero.impactArea]}
-                </span>
               </div>
             </div>
 

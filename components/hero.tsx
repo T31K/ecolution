@@ -54,13 +54,6 @@ export function Hero({
     <section className="relative overflow-hidden pt-20 pb-32">
       <Container className="relative z-10">
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary-container/30 px-4 py-1.5">
-            <span className="flex h-2 w-2 animate-pulse rounded-full bg-secondary" />
-            <span className="text-label-md text-secondary">
-              {totalJobs.toLocaleString()} active climate roles on the board
-            </span>
-          </div>
-
           <h1 className="mb-6 font-display text-display-mobile leading-tight tracking-tight text-primary md:text-display">
             Solve the planet&rsquo;s hardest problems.
             <span className="block text-secondary underline decoration-secondary-container/50 decoration-8 underline-offset-4">

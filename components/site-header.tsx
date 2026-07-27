@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 const NAV_LINKS = [
   { label: "Browse Jobs", href: "/browse" },
   { label: "Remote", href: "/browse?country=remote" },
-  { label: "Engineering", href: "/browse?role=engineering" },
-  { label: "Carbon Capture", href: "/browse?impact=carbon-capture" },
+  { label: "Renewable Energy", href: "/browse?impact=renewable-energy" },
+  { label: "Circular Economy", href: "/browse?impact=circular-economy" },
 ];
 
 export function SiteHeader() {
@@ -22,23 +22,22 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-surface shadow-card">
-      <Container className="flex items-center justify-between py-4">
-        <div className="flex items-center gap-12">
-          <Link
-            className="flex items-center gap-2.5 font-display text-headline-md font-bold text-secondary"
-            href="/"
-          >
-            <Image
-              src="/img/logo.png"
-              alt=""
-              width={36}
-              height={36}
-              priority
-              className="h-9 w-9"
-            />
-            Decarbon Jobs
-          </Link>
-          <div className="hidden items-center gap-stack-lg md:flex">
+      <Container className="relative flex items-center justify-between py-4">
+        <Link
+          className="flex items-center gap-2.5 font-display text-headline-md font-bold text-secondary"
+          href="/"
+        >
+          <Image
+            src="/img/logo.png"
+            alt=""
+            width={36}
+            height={36}
+            priority
+            className="h-9 w-9"
+          />
+          Decarbon Jobs
+        </Link>
+        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-stack-lg md:flex">
             {NAV_LINKS.map((link) => {
               const current = link.href !== "#" && pathname.startsWith(link.href);
               return (
@@ -56,7 +55,6 @@ export function SiteHeader() {
                 </Link>
               );
             })}
-          </div>
         </div>
 
         <div className="flex items-center gap-stack-md">
