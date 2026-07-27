@@ -48,7 +48,7 @@ export function SiteHeader() {
                   className={
                     current
                       ? "border-b-2 border-secondary pb-1 text-body-md font-bold text-secondary"
-                      : "text-body-md font-medium text-on-surface-variant transition-colors duration-200 hover:text-secondary"
+                      : "border-b-2 border-transparent pb-1 text-body-md font-medium text-on-surface-variant transition-colors duration-200 hover:text-secondary"
                   }
                 >
                   {link.label}
