@@ -47,7 +47,7 @@ export function SiteHeader() {
                   aria-current={current ? "page" : undefined}
                   className={
                     current
-                      ? "text-body-md font-bold text-secondary"
+                      ? "text-body-md font-medium text-secondary"
                       : "text-body-md font-medium text-on-surface-variant transition-colors duration-200 hover:text-secondary"
                   }
                 >
