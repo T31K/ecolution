@@ -6,13 +6,12 @@ import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
 import type { Job } from "@/lib/types";
 
 /**
- * The bento grid needs one hero role and four supporting ones. Picking the
+ * The bento grid needs one hero role and six supporting ones. Picking the
  * most-viewed recent listings keeps the front page looking active without
- * needing an editorial "featured" flag in the seed.
+ * needing an editorial "featured" flag.
  */
 function pickFeatured(jobs: Job[]): { hero: Job; rest: Job[] } {
   // Real, live postings lead — they are the strongest thing on the board.
-  // Generated listings fill the remaining slots.
   const real = jobs
     .filter((job) => job.source === "real")
     .sort((a, b) => b.postedAt.localeCompare(a.postedAt));
@@ -24,15 +23,63 @@ function pickFeatured(jobs: Job[]): { hero: Job; rest: Job[] } {
   const chosen: Job[] = [];
   const seenCompanies = new Set<string>();
 
-  // One per company, so the grid does not show five roles at one employer.
+  // One per company, so the grid does not show seven roles at one employer.
   for (const job of ranked) {
     if (seenCompanies.has(job.company)) continue;
     seenCompanies.add(job.company);
     chosen.push(job);
-    if (chosen.length === 5) break;
+    if (chosen.length === 7) break;
+  }
+
+  // Not enough companies to fill the grid — allow repeats rather than gaps.
+  if (chosen.length < 7) {
+    for (const job of ranked) {
+      if (chosen.includes(job)) continue;
+      chosen.push(job);
+      if (chosen.length === 7) break;
+    }
   }
 
   return { hero: chosen[0], rest: chosen.slice(1) };
+}
+
+/** Compact horizontal card used beside and below the hero. */
+function CompactRoleCard({ job }: { job: Job }) {
+  return (
+    <article className="group relative flex gap-4 rounded-xl border border-transparent bg-surface-container-lowest p-stack-md shadow-card transition-all hover:border-secondary">
+      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-outline-variant/40 bg-surface-container">
+        <Image
+          src={job.companyLogo}
+          alt={job.companyLogoAlt}
+          width={48}
+          height={48}
+          className="h-full w-full object-cover"
+        />
+      </div>
+      <div className="min-w-0">
+        <h3 className="mb-0.5 line-clamp-2 text-body-md font-bold text-secondary group-hover:underline">
+          <Link
+            href={`/jobs/${job.id}`}
+            className="after:absolute after:inset-0 focus:outline-none"
+          >
+            {job.title}
+          </Link>
+        </h3>
+        <p className="mb-2 truncate text-body-sm text-on-surface-variant">
+          {job.company} • {job.locationDisplay}
+        </p>
+        <p className="flex items-center gap-2 text-label-sm text-on-surface-variant">
+          <span className="font-semibold text-on-surface">
+            {job.salaryDisplay}
+          </span>
+          <span className="flex items-center gap-0.5 text-secondary transition-transform group-hover:translate-x-1">
+            Details
+            <ChevronRight className="h-3.5 w-3.5" />
+          </span>
+        </p>
+      </div>
+    </article>
+  );
 }
 
 export function FeaturedRoles({
@@ -46,6 +93,9 @@ export function FeaturedRoles({
   const { hero, rest } = pickFeatured(jobs);
 
   if (!hero) return null;
+
+  const side = rest.slice(0, 2);
+  const bottom = rest.slice(2);
 
   return (
     <section className="bg-surface py-stack-lg">
@@ -72,13 +122,13 @@ export function FeaturedRoles({
           <article className="group relative overflow-hidden rounded-xl border border-transparent bg-surface-container-lowest p-stack-lg shadow-card transition-all hover:border-secondary md:col-span-8">
             <div className="mb-6 flex items-start justify-between">
               <div className="flex gap-stack-md">
-                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-container p-2">
+                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-outline-variant/40 bg-surface-container">
                   <Image
                     src={hero.companyLogo}
                     alt={hero.companyLogoAlt}
-                    width={48}
-                    height={48}
-                    className="h-12 w-12 object-contain"
+                    width={64}
+                    height={64}
+                    className="h-full w-full object-cover"
                   />
                 </div>
                 <div>
@@ -108,7 +158,7 @@ export function FeaturedRoles({
               </div>
             </div>
 
-            <p className="mb-stack-lg max-w-xl text-body-md text-on-surface-variant">
+            <p className="mb-stack-lg line-clamp-4 max-w-xl text-body-md text-on-surface-variant">
               {hero.about}
             </p>
 
@@ -133,50 +183,17 @@ export function FeaturedRoles({
             </div>
           </article>
 
-          {rest.map((job) => (
-            <article
-              key={job.id}
-              className="group relative rounded-xl border border-transparent bg-surface-container-lowest p-stack-md shadow-card transition-all hover:border-secondary md:col-span-4"
-            >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-container p-1.5">
-                <Image
-                  src={job.companyLogo}
-                  alt={job.companyLogoAlt}
-                  width={32}
-                  height={32}
-                  className="h-8 w-8 object-contain"
-                />
-              </div>
-              <h3 className="mb-1 text-body-lg font-bold text-secondary group-hover:underline">
-                <Link
-                  href={`/jobs/${job.id}`}
-                  className="after:absolute after:inset-0 focus:outline-none"
-                >
-                  {job.title}
-                </Link>
-              </h3>
-              <p className="mb-4 text-body-sm text-on-surface-variant">
-                {job.company}
-                {job.source === "real" && (
-                  <span className="ml-2 rounded bg-secondary/10 px-1.5 py-0.5 text-[10px] font-bold text-secondary uppercase">
-                    Live
-                  </span>
-                )}
-              </p>
-              <div className="mb-stack-md flex flex-wrap gap-2">
-                <span className="rounded bg-surface-container px-2 py-0.5 text-[10px] font-bold text-on-surface-variant uppercase">
-                  {job.city}
-                </span>
-                <span className="rounded bg-surface-container px-2 py-0.5 text-[10px] font-bold text-on-surface-variant uppercase">
-                  {job.remote ? "Remote" : "On-site"}
-                </span>
-              </div>
-              <span className="flex items-center gap-1 text-label-md text-secondary transition-transform group-hover:translate-x-1">
-                Details
-                <ChevronRight className="h-4 w-4" />
-              </span>
-            </article>
-          ))}
+          <div className="flex flex-col gap-gutter md:col-span-4 [&>article]:flex-1">
+            {side.map((job) => (
+              <CompactRoleCard key={job.id} job={job} />
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 gap-gutter sm:grid-cols-2 md:col-span-12 lg:grid-cols-4">
+            {bottom.map((job) => (
+              <CompactRoleCard key={job.id} job={job} />
+            ))}
+          </div>
         </div>
 
         <div className="mt-stack-lg flex justify-center md:hidden">
