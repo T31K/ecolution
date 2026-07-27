@@ -52,7 +52,11 @@ export function Hero({
   };
 
   return (
-    <section className="relative overflow-hidden pt-20">
+    <section className="relative overflow-hidden pt-20 pb-40">
+      {/* Globe sits behind the copy and search as a background layer. */}
+      <div className="pointer-events-none absolute top-[38%] left-1/2 h-[42rem] w-[42rem] -translate-x-1/2 opacity-60 md:h-[56rem] md:w-[56rem]">
+        <HeroGlobe locations={locations} />
+      </div>
       <Container className="relative z-10">
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
           <h1 className="mb-6 font-display text-display-mobile leading-tight tracking-tight text-primary md:text-display">
@@ -137,12 +141,6 @@ export function Hero({
           </div>
         </div>
       </Container>
-
-      {/* Job locations on a slowly rotating globe; clipped by the section so
-          only the upper hemisphere shows, like a horizon. */}
-      <div className="pointer-events-none relative mx-auto -mb-[26rem] h-[42rem] w-[42rem] max-w-[90vw] md:-mb-[30rem] md:h-[52rem] md:w-[52rem]">
-        <HeroGlobe locations={locations} />
-      </div>
     </section>
   );
 }
