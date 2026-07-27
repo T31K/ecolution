@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container } from "./container";
 import { COUNTRY_NAMES } from "./browse-filters";
-import { HeroGlobe, type JobLocation } from "./hero-globe";
+import { HeroGlobe } from "./hero-globe";
 import {
   Select,
   SelectContent,
@@ -32,13 +32,7 @@ const POPULAR_SEARCHES = [
   { label: "Remote", href: "/browse?country=remote" },
 ];
 
-export function Hero({
-  countries,
-  locations,
-}: {
-  countries: string[];
-  locations: JobLocation[];
-}) {
+export function Hero({ countries }: { countries: string[] }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("any");
@@ -53,9 +47,12 @@ export function Hero({
 
   return (
     <section className="relative overflow-hidden pt-20 pb-40">
-      {/* Globe sits behind the copy and search as a background layer. */}
-      <div className="pointer-events-none absolute top-[16%] left-1/2 h-[42rem] w-[42rem] -translate-x-1/2 opacity-30 md:h-[56rem] md:w-[56rem]">
-        <HeroGlobe locations={locations} />
+      {/* Globe sits behind the copy as a background layer. A vertical mask
+          fades it out under the headline and subtitle so the type never has
+          to fight it, then lets the horizon come through at full strength
+          below the search bar. */}
+      <div className="pointer-events-none absolute -top-24 left-1/2 h-[58rem] w-[58rem] -translate-x-1/2 opacity-60 [mask-image:radial-gradient(ellipse_46%_38%_at_50%_34%,transparent_42%,rgba(0,0,0,0.4)_68%,black_88%)] md:h-[76rem] md:w-[76rem]">
+        <HeroGlobe />
       </div>
       <Container className="relative z-10">
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
