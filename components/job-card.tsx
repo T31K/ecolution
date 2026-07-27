@@ -18,7 +18,7 @@ export function JobCard({ job, now }: { job: Job; now: number }) {
       className="group relative gap-0 border-outline-variant/30 bg-surface-container-lowest py-0 transition-all duration-300 focus-within:border-secondary/40 hover:border-secondary/40 hover:shadow-raised"
     >
       <CardContent className="flex flex-col gap-6 p-6 sm:flex-row">
-        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-container-high">
+        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-outline-variant/40 bg-surface-container-high">
           <Image
             src={job.companyLogo}
             alt={job.companyLogoAlt}
