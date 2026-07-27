@@ -1,5 +1,4 @@
 import { connection } from "next/server";
-import { Companies } from "@/components/companies";
 import { FeaturedRoles } from "@/components/featured-roles";
 import { Hero } from "@/components/hero";
 import { listJobs } from "@/lib/api";
@@ -21,7 +20,6 @@ export default async function Home() {
       <main>
         <Hero countries={countries} totalJobs={total} />
         <FeaturedRoles jobs={jobs} totalJobs={total} />
-        <Companies jobs={jobs} />
         <WhyClimateTech />
         <Newsletter />
       </main>
