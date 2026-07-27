@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/container";
 import { JobBulletList } from "@/components/job-bullet-list";
 import { JobHeader } from "@/components/job-header";
-import { JobImpact } from "@/components/job-impact";
 import { JobSidebar } from "@/components/job-sidebar";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -58,7 +57,6 @@ export default async function JobPage({ params }: JobPageProps) {
                 </p>
               </article>
 
-              <JobImpact summary={job.impactSummary} stats={job.impactStats} />
 
               <JobBulletList
                 title="Responsibilities"
