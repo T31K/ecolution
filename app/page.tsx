@@ -18,7 +18,7 @@ export default async function Home() {
     <>
       <SiteHeader />
       <main>
-        <Hero countries={countries} totalJobs={total} />
+        <Hero countries={countries} />
         <FeaturedRoles jobs={jobs} totalJobs={total} />
         <WhyClimateTech />
         <Newsletter />

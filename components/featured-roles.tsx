@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronRight, ExternalLink } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import { Container } from "./container";
 import { JobCard } from "@/components/job-card";
-import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
+import { formatPostedAgo, jobChips } from "@/lib/job-view";
 import type { Job } from "@/lib/types";
 
 /**

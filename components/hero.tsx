@@ -31,13 +31,7 @@ const POPULAR_SEARCHES = [
   { label: "Remote", href: "/browse?country=remote" },
 ];
 
-export function Hero({
-  countries,
-  totalJobs,
-}: {
-  countries: string[];
-  totalJobs: number;
-}) {
+export function Hero({ countries }: { countries: string[] }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("any");
