@@ -14,11 +14,12 @@ export default async function Home() {
   // Sorted by views so the pool already leads with what people are opening.
   const { jobs, total } = await listJobs({ sort: "views", perPage: 50 });
   const countries = [...new Set(jobs.map((job) => job.country))].sort();
+  const locations = jobs.map((job) => ({ city: job.city, country: job.country }));
   return (
     <>
       <SiteHeader />
       <main>
-        <Hero countries={countries} />
+        <Hero countries={countries} locations={locations} />
         <FeaturedRoles jobs={jobs} totalJobs={total} />
         <WhyClimateTech />
         <Newsletter />
