@@ -34,6 +34,12 @@ const POPULAR_SEARCHES = [
 
 export function Hero({ countries }: { countries: string[] }) {
   const router = useRouter();
+  // Alphabetical by display name, empty codes dropped.
+  const sortedCountries = countries
+    .filter(Boolean)
+    .sort((a, b) =>
+      (COUNTRY_NAMES[a] ?? a).localeCompare(COUNTRY_NAMES[b] ?? b),
+    );
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("any");
 
@@ -104,7 +110,7 @@ export function Hero({ countries }: { countries: string[] }) {
                 <SelectContent>
                   <SelectItem value="any">Anywhere</SelectItem>
                   <SelectItem value="remote">Remote only</SelectItem>
-                  {countries.map((country) => (
+                  {sortedCountries.map((country) => (
                     <SelectItem key={country} value={country}>
                       {COUNTRY_NAMES[country] ?? country}
                     </SelectItem>
