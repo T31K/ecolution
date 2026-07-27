@@ -30,9 +30,6 @@ export function Newsletter() {
               Subscribe
             </Button>
           </form>
-          <p className="mt-6 text-body-sm text-on-primary-container/60">
-            No spam. Only impact. Unsubscribe anytime.
-          </p>
         </div>
       </div>
     </Container>
