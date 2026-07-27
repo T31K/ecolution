@@ -81,13 +81,19 @@ async function captureFromActiveTab() {
         const text =
           window.getSelection().toString().trim() ||
           document.body.innerText.slice(0, 40000);
-        // Company logo: og:image is the norm on job boards; fall back to the
-        // first plausible logo <img>.
+        // Company logo: the real <img> on the page beats og:image, which job
+        // boards fill with a generic share card. Skip data: URIs and icons.
+        const usable = (img) =>
+          img?.src?.startsWith("http") &&
+          img.naturalWidth >= 40 &&
+          img.naturalHeight >= 40;
+        const logoImg = [
+          ...document.querySelectorAll(
+            'img[class*="logo" i], img[alt*="logo" i], aside img, [class*="sidebar" i] img, [class*="company" i] img',
+          ),
+        ].find(usable);
         const og = document.querySelector('meta[property="og:image"]');
-        const logoImg = document.querySelector(
-          'img[class*="logo" i], img[alt*="logo" i], aside img, [class*="sidebar" i] img',
-        );
-        const logo = og?.content || logoImg?.src || "";
+        const logo = logoImg?.src || og?.content || "";
         // All links so the server can pick the true apply URL.
         const links = [...document.querySelectorAll("a[href]")]
           .map((a) => ({ text: a.innerText.trim().slice(0, 80), href: a.href }))

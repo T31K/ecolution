@@ -50,12 +50,9 @@ export function ApplyButton({ job }: { job: Job }) {
             <a href={externalUrl} target="_blank" rel="noopener noreferrer" />
           }
         >
-          Apply on company site
+          Apply
           <ExternalLink className="h-4 w-4" />
         </Button>
-        <span className="text-label-sm text-on-surface-variant md:text-right">
-          Live vacancy — applications handled by the employer
-        </span>
       </div>
     );
   }
