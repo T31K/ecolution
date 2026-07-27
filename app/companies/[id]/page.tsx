@@ -120,7 +120,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
           </section>
 
           <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">
-            <div className="lg:col-span-8">
+            <div className="lg:order-2 lg:col-span-8">
               <h2 className="mb-stack-md font-display text-headline-md text-primary">
                 Open roles
               </h2>
@@ -143,7 +143,7 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
               )}
             </div>
 
-            <aside className="flex flex-col gap-stack-lg lg:col-span-4">
+            <aside className="flex flex-col gap-stack-lg lg:order-1 lg:col-span-4">
               <section className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-stack-md shadow-card">
                 <h2 className="mb-stack-md font-display text-body-lg font-bold text-primary">
                   Company Profile
