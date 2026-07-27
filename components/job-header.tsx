@@ -12,13 +12,13 @@ export function JobHeader({ job }: { job: Job }) {
     <section className="mb-stack-lg rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-stack-md shadow-card md:p-stack-lg">
       <div className="flex flex-col items-start justify-between gap-stack-md md:flex-row md:items-center">
         <div className="flex items-center gap-stack-md">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-outline-variant/20 bg-surface-container p-2">
+          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-outline-variant/20 bg-surface-container">
             <Image
               src={job.companyLogo}
               alt={job.companyLogoAlt}
               width={64}
               height={64}
-              className="h-full w-full object-contain"
+              className="h-full w-full object-cover"
               priority
             />
           </div>
