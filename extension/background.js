@@ -67,31 +67,56 @@ async function postIngest(payload) {
   throw new Error(lastError);
 }
 
-chrome.commands.onCommand.addListener(async (command) => {
-  if (command !== "capture-job") return;
+async function captureFromActiveTab() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) return;
 
+  // A manual selection wins; otherwise capture the whole page's visible text
+  // and let the server-side parser find the job in it.
   let selection = "";
   try {
     const [{ result }] = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: () => window.getSelection().toString(),
+      func: () => {
+        const text =
+          window.getSelection().toString().trim() ||
+          document.body.innerText.slice(0, 40000);
+        // Company logo: og:image is the norm on job boards; fall back to the
+        // first plausible logo <img>.
+        const og = document.querySelector('meta[property="og:image"]');
+        const logoImg = document.querySelector(
+          'img[class*="logo" i], img[alt*="logo" i], aside img, [class*="sidebar" i] img',
+        );
+        const logo = og?.content || logoImg?.src || "";
+        // All links so the server can pick the true apply URL.
+        const links = [...document.querySelectorAll("a[href]")]
+          .map((a) => ({ text: a.innerText.trim().slice(0, 80), href: a.href }))
+          .filter((l) => l.text && l.href.startsWith("http"))
+          .slice(0, 80);
+        return { text, logo, links };
+      },
     });
-    selection = result || "";
+    selection = result?.text || "";
+    var pageMeta = { logo: result?.logo || "", links: result?.links || [] };
   } catch {
     return; // restricted page — nothing we can do
   }
 
   if (!selection.trim()) {
-    showToast(tab.id, "err", "Nothing selected", "Select the job text first, then press the shortcut again.");
+    showToast(tab.id, "err", "Empty page", "Couldn't read any text from this page.");
     return;
   }
 
   chrome.action.setBadgeText({ text: "…" });
   showToast(tab.id, "wait", "Capturing job…", "Parsing the listing with AI, ~5 seconds.");
   try {
-    const data = await postIngest({ selection, url: tab.url, title: tab.title });
+    const data = await postIngest({
+      selection,
+      url: tab.url,
+      title: tab.title,
+      logo: pageMeta.logo,
+      links: pageMeta.links,
+    });
     chrome.action.setBadgeBackgroundColor({ color: "#16a34a" });
     chrome.action.setBadgeText({ text: "✓" });
     showToast(tab.id, "ok", "Job captured ✓", `${data.job.title} @ ${data.job.company}`);
@@ -101,4 +126,12 @@ chrome.commands.onCommand.addListener(async (command) => {
     showToast(tab.id, "err", "Capture failed", err.message);
   }
   setTimeout(() => chrome.action.setBadgeText({ text: "" }), 4000);
+}
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "capture-job") captureFromActiveTab();
 });
+
+// Clicking the toolbar icon captures too — works even when the keyboard
+// shortcut failed to bind (Chrome skips suggested keys that conflict).
+chrome.action.onClicked.addListener(() => captureFromActiveTab());
