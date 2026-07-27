@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Banknote, BadgeCheck, Clock, ExternalLink } from "lucide-react";
-import { IMPACT_ICONS, IMPACT_LABELS, formatPostedAgo } from "@/lib/job-view";
+import { Banknote, BadgeCheck, Clock } from "lucide-react";
+import { formatPostedAgo } from "@/lib/job-view";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Job } from "@/lib/types";
 
@@ -10,23 +10,21 @@ const RECENT_THRESHOLD_MS = 3 * 24 * 60 * 60 * 1000;
 /** `now` is passed in rather than read during render: it keeps every card in
  *  a list consistent, and reading the clock mid-render is impure. */
 export function JobCard({ job, now }: { job: Job; now: number }) {
-  const ImpactIcon = IMPACT_ICONS[job.impactArea];
   const isNew = now - new Date(job.postedAt).getTime() < RECENT_THRESHOLD_MS;
   const verified = job.views > 1500;
-  const isReal = job.source === "real";
 
   return (
     <Card
       className="group relative gap-0 border-outline-variant/30 bg-surface-container-lowest py-0 transition-all duration-300 focus-within:border-secondary/40 hover:border-secondary/40 hover:shadow-raised"
     >
       <CardContent className="flex flex-col gap-6 p-6 sm:flex-row">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-surface-container-high p-2">
+        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-container-high">
           <Image
             src={job.companyLogo}
             alt={job.companyLogoAlt}
-            width={48}
-            height={48}
-            className="h-10 w-10 object-contain"
+            width={64}
+            height={64}
+            className="h-full w-full object-cover"
           />
         </div>
 
@@ -42,20 +40,6 @@ export function JobCard({ job, now }: { job: Job; now: number }) {
                 {job.title}
               </Link>
             </h2>
-            <div className="flex flex-wrap items-center gap-2">
-              {isReal && (
-                <span className="flex items-center gap-1.5 rounded border border-secondary/30 bg-secondary/10 px-3 py-1 text-label-sm font-semibold text-secondary">
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  Live posting
-                </span>
-              )}
-              <div className="flex items-center gap-1.5 rounded border border-outline-variant/30 bg-surface-container-highest px-3 py-1 text-on-surface-variant">
-                <ImpactIcon className="h-4 w-4" />
-                <span className="text-label-sm">
-                  {IMPACT_LABELS[job.impactArea]}
-                </span>
-              </div>
-            </div>
           </div>
 
           <div className="mb-4 flex items-center gap-2">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ROLE_LABELS, formatPostedAgo } from "@/lib/job-view";
+import { ROLE_LABELS, formatPostedAgo, companySlug } from "@/lib/job-view";
 import type { Job } from "@/lib/types";
 
 export function JobSidebar({
@@ -36,7 +36,7 @@ export function JobSidebar({
         </dl>
 
         <Link
-          href={`/companies/${job.posterId}`}
+          href={`/companies/${companySlug(job.company)}`}
           className="mt-stack-md flex items-center gap-1 text-label-md text-secondary hover:underline"
         >
           View Company Page

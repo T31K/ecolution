@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, MapPin } from "lucide-react";
 import { ApplyButton } from "@/components/apply-button";
-import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
+import { IMPACT_LABELS, formatPostedAgo, jobChips, companySlug } from "@/lib/job-view";
 import type { Job } from "@/lib/types";
 
 export function JobHeader({ job }: { job: Job }) {
@@ -28,7 +28,7 @@ export function JobHeader({ job }: { job: Job }) {
             </h1>
             <div className="mt-1 flex flex-wrap items-center gap-stack-sm">
               <Link
-                href={`/companies/${job.posterId}`}
+                href={`/companies/${companySlug(job.company)}`}
                 className="font-semibold text-secondary hover:underline"
               >
                 {job.company}

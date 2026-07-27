@@ -17,12 +17,24 @@ type CompanyPageProps = {
 
 /**
  * There is no companies endpoint — a company page is derived from its
- * listings. `id` is the posterId that every job carries.
+ * listings. `id` is the company name slug (e.g. "too-good-to-go"), so the
+ * URL works for scraped listings too, which have no poster account.
  */
-async function getCompanyJobs(posterId: string): Promise<Job[]> {
+function companySlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+async function getCompanyJobs(id: string): Promise<Job[]> {
   const { jobs } = await listJobs({ perPage: 50, page: 1 });
   return jobs
-    .filter((job) => job.posterId === posterId)
+    .filter(
+      (job) => companySlug(job.company) === id || job.posterId === id,
+    )
     .sort((a, b) => b.postedAt.localeCompare(a.postedAt));
 }
 
@@ -68,13 +80,13 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
           <section className="mb-stack-lg rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-stack-md shadow-card md:p-stack-lg">
             <div className="flex flex-col gap-stack-md md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-stack-md">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container p-3">
+                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-outline-variant/20 bg-surface-container">
                   <Image
                     src={sample.companyLogo}
                     alt={`${company} logo`}
                     width={80}
                     height={80}
-                    className="h-full w-full object-contain"
+                    className="h-full w-full object-cover"
                     priority
                   />
                 </div>
@@ -100,14 +112,11 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
               </Link>
             </div>
 
-            <p className="mt-stack-md border-t border-outline-variant/20 pt-stack-md text-body-lg leading-relaxed text-on-surface-variant">
-              {company} is{" "}
-              {sample.about
-                .replace(`${company} is `, "")
-                .split(". As ")[0]
-                .replace(/\.$/, "")}
-              .
-            </p>
+            {sample.about && (
+              <p className="mt-stack-md border-t border-outline-variant/20 pt-stack-md text-body-lg leading-relaxed text-on-surface-variant">
+                {sample.about}
+              </p>
+            )}
           </section>
 
           <div className="grid grid-cols-1 gap-gutter lg:grid-cols-12">

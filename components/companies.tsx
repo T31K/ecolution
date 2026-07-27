@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "./container";
+import { companySlug } from "@/lib/job-view";
 import type { Job } from "@/lib/types";
 
 export function Companies({ jobs }: { jobs: Job[] }) {
@@ -12,11 +13,12 @@ export function Companies({ jobs }: { jobs: Job[] }) {
     { id: string; name: string; logo: string; openRoles: number }
   >();
   for (const job of jobs) {
-    const existing = byPoster.get(job.posterId);
+    const key = companySlug(job.company);
+    const existing = byPoster.get(key);
     if (existing) existing.openRoles += 1;
     else
-      byPoster.set(job.posterId, {
-        id: job.posterId,
+      byPoster.set(key, {
+        id: key,
         name: job.company,
         logo: job.companyLogo,
         openRoles: 1,

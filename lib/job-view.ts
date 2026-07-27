@@ -36,6 +36,16 @@ export const SENIORITY_LABELS: Record<Seniority, string> = {
   director: "Director",
 };
 
+/** URL slug for a company page, e.g. "Too Good To Go" -> "too-good-to-go". */
+export function companySlug(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
