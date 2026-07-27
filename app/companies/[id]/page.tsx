@@ -68,7 +68,40 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
   const impactArea = sample.impactArea;
   const ImpactIcon = impactArea ? IMPACT_ICONS[impactArea] : Briefcase;
 
-  const cities = [...new Set(jobs.map((job) => job.city))];
+  // "Hiring in" grouped by continent, resolved from each job's country code.
+  const CONTINENTS: Record<string, string> = {
+    // Europe
+    AT: "Europe", BE: "Europe", CH: "Europe", CZ: "Europe", DE: "Europe",
+    DK: "Europe", ES: "Europe", FI: "Europe", FR: "Europe", GB: "Europe",
+    IE: "Europe", IT: "Europe", NL: "Europe", NO: "Europe", PL: "Europe",
+    PT: "Europe", SE: "Europe", UK: "Europe",
+    // North America
+    CA: "North America", MX: "North America", US: "North America",
+    // South America
+    AR: "South America", BR: "South America", CL: "South America",
+    CO: "South America", PE: "South America",
+    // Asia
+    CN: "Asia", HK: "Asia", ID: "Asia", IN: "Asia", JP: "Asia", KR: "Asia",
+    MY: "Asia", PH: "Asia", SG: "Asia", TH: "Asia", TW: "Asia", VN: "Asia",
+    // Oceania
+    AU: "Oceania", NZ: "Oceania",
+    // Africa
+    EG: "Africa", KE: "Africa", MA: "Africa", NG: "Africa", ZA: "Africa",
+    // Middle East
+    AE: "Middle East", IL: "Middle East", SA: "Middle East", TR: "Middle East",
+  };
+  const citiesByContinent = new Map<string, string[]>();
+  for (const job of jobs) {
+    if (!job.city) continue;
+    const continent = CONTINENTS[job.country?.toUpperCase()] ?? "Elsewhere";
+    const list = citiesByContinent.get(continent) ?? [];
+    if (!list.includes(job.city)) list.push(job.city);
+    citiesByContinent.set(continent, list);
+  }
+  const continents = [...citiesByContinent.entries()].sort(
+    (a, b) => b[1].length - a[1].length,
+  );
+
   const roleTypes = [...new Set(jobs.map((job) => job.roleType))];
   const remoteCount = jobs.filter((job) => job.remote).length;
 
@@ -186,15 +219,24 @@ export default async function CompanyPage({ params }: CompanyPageProps) {
                   <MapPin className="h-5 w-5 text-secondary" />
                   Hiring in
                 </h2>
-                <div className="flex flex-wrap gap-2">
-                  {cities.map((city) => (
-                    <Link
-                      key={city}
-                      href={`/browse?q=${encodeURIComponent(city)}`}
-                      className="rounded-full bg-surface-container px-3 py-1 text-label-sm text-on-surface-variant transition-colors hover:bg-secondary-container hover:text-on-secondary-container"
-                    >
-                      {city}
-                    </Link>
+                <div className="space-y-stack-sm">
+                  {continents.map(([continent, cities]) => (
+                    <div key={continent}>
+                      <p className="mb-1.5 text-label-sm font-semibold tracking-wide text-outline uppercase">
+                        {continent}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {cities.map((city) => (
+                          <Link
+                            key={city}
+                            href={`/browse?q=${encodeURIComponent(city)}`}
+                            className="rounded-full bg-surface-container px-3 py-1 text-label-sm text-on-surface-variant transition-colors hover:bg-secondary-container hover:text-on-secondary-container"
+                          >
+                            {city}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </section>
