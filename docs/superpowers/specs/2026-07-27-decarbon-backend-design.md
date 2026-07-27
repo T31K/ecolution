@@ -7,7 +7,7 @@ production.
 ## Architecture
 
 - **Backend**: existing `main-server` (Express, Node 20) at
-  `~/Projects/Main/main-server`, deployed on Coolify at `https://api.t31k.cloud`.
+  `~/Projects/Main/main-server`, deployed on Coolify at `https://api.kaleidoscopical.com`.
   All endpoints live in one file, `routes/decarbon.js`, mounted at `/decarbon`
   in `app.js`. Auth mirrors `routes/yol.js`: bcrypt password hashes + JWT with
   audience `decarbon`, `Authorization: Bearer` header. CORS is already open.
@@ -15,7 +15,7 @@ production.
   tunnel; main-server uses `DATABASE_URL`). Tables are prefixed `decarbon_`.
 - **Frontend**: this repo (Next.js 16). The localStorage overlay
   (`lib/store.ts`/`lib/overlay.ts`) and seed-based auth are replaced with calls
-  to `NEXT_PUBLIC_API_URL` (`https://api.t31k.cloud` in prod). JWT kept
+  to `NEXT_PUBLIC_API_URL` (`https://api.kaleidoscopical.com` in prod). JWT kept
   client-side; session context replaces the seed session.
 - **Job ingest**: a Chrome extension (MV3). Workflow: the operator selects the
   job text on any job board page and presses **Cmd+Shift+Y**; the extension
