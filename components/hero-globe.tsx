@@ -56,19 +56,33 @@ const COUNTRY_COORDS: Record<string, [number, number]> = {
   MN: [46.9, 103.8], AE: [23.4, 53.8], UM: [28.2, -177.35],
 };
 
-function toMarkers(locations: JobLocation[]) {
+function uniqueCoords(locations: JobLocation[]): [number, number][] {
   const seen = new Set<string>();
-  const markers: { location: [number, number]; size: number }[] = [];
+  const coords: [number, number][] = [];
   for (const { city, country } of locations) {
     const key = city.toLowerCase().split(",")[0].trim();
-    const coords = CITY_COORDS[key] ?? COUNTRY_COORDS[country?.toUpperCase()];
-    if (!coords) continue;
-    const dedupe = coords.join(",");
+    const point = CITY_COORDS[key] ?? COUNTRY_COORDS[country?.toUpperCase()];
+    if (!point) continue;
+    const dedupe = point.join(",");
     if (seen.has(dedupe)) continue;
     seen.add(dedupe);
-    markers.push({ location: coords, size: 0.06 });
+    coords.push(point);
   }
-  return markers;
+  return coords;
+}
+
+/**
+ * Thin arcs linking job cities — a "global climate network" read, instead of
+ * marker dots. Hub-and-spoke from the two busiest hubs keeps it uncluttered.
+ */
+function toArcs(locations: JobLocation[]) {
+  const coords = uniqueCoords(locations);
+  if (coords.length < 3) return [];
+  const [hubA, hubB, ...rest] = coords;
+  return rest.slice(0, 14).map((point, index) => ({
+    from: index % 2 === 0 ? hubA : hubB,
+    to: point,
+  }));
 }
 
 /**
@@ -99,10 +113,14 @@ export function HeroGlobe({ locations }: { locations: JobLocation[] }) {
       diffuse: 1.2,
       mapSamples: 18000,
       mapBrightness: 3.5,
-      baseColor: [0.85, 0.93, 0.88],
+      baseColor: [0.8, 0.9, 0.84],
       markerColor: [0.0, 0.62, 0.42],
-      glowColor: [0.9, 0.96, 0.92],
-      markers: toMarkers(locations),
+      glowColor: [0.92, 0.97, 0.94],
+      markers: [],
+      arcs: toArcs(locations),
+      arcColor: [0.0, 0.55, 0.38],
+      arcWidth: 0.6,
+      arcHeight: 0.45,
     });
 
     let frame = 0;
