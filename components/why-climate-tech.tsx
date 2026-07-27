@@ -22,43 +22,43 @@ const BENEFITS = [
 
 export function WhyClimateTech() {
   return (
-    <section className="relative overflow-hidden py-24">
+    <section className="py-24">
       <Container>
-        <div className="flex flex-col items-center gap-16 lg:flex-row">
-          <div className="lg:w-1/2">
-            <h2 className="mb-6 font-display text-headline-lg text-primary">
+        <div className="relative overflow-hidden rounded-[2rem] shadow-raised">
+          <Image
+            src="/img/why-climate-solar.jpg"
+            alt="An engineer in a hi-vis vest walks between rows of solar panels at golden hour, wind turbines on green hills behind."
+            fill
+            sizes="(max-width: 1280px) 100vw, 1200px"
+            className="object-cover"
+          />
+          {/* Bottom-heavy scrim keeps the glass cards and heading legible
+              while the top of the photo stays bright. */}
+          <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/30 to-primary/10" />
+
+          <div className="relative z-10 flex min-h-[34rem] flex-col justify-between gap-stack-lg p-stack-md md:p-stack-lg">
+            <h2 className="max-w-xl font-display text-headline-lg text-white drop-shadow-md">
               Why work in Climate Tech?
             </h2>
-            <div className="space-y-stack-lg">
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {BENEFITS.map(({ icon: BenefitIcon, title, body }) => (
-                <div key={title} className="flex gap-4">
-                  <div className="h-fit rounded-lg bg-secondary-container/50 p-3">
-                    <BenefitIcon className="h-6 w-6 text-secondary" />
+                <div
+                  key={title}
+                  className="rounded-xl border border-white/15 bg-white/10 p-stack-md backdrop-blur-md"
+                >
+                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg bg-secondary-container/80">
+                    <BenefitIcon className="h-5 w-5 text-on-secondary-container" />
                   </div>
-                  <div>
-                    <h3 className="mb-1 text-body-lg font-bold text-secondary">
-                      {title}
-                    </h3>
-                    <p className="text-body-md text-on-surface-variant">{body}</p>
-                  </div>
+                  <h3 className="mb-1 text-body-lg font-bold text-white">
+                    {title}
+                  </h3>
+                  <p className="text-body-md leading-relaxed text-white/85">
+                    {body}
+                  </p>
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className="relative lg:w-1/2">
-            <figure className="relative z-10 overflow-hidden rounded-2xl border border-outline-variant/40 shadow-raised">
-              <Image
-                src="/img/why-climate-solar.jpg"
-                alt="An engineer in a hi-vis vest walks between rows of solar panels at golden hour, wind turbines on green hills behind."
-                width={1280}
-                height={720}
-                className="aspect-[4/3] w-full object-cover md:aspect-video"
-              />
-              {/* Same treatment as the auth page: primary-container scrim so
-                  white type stays legible over the bright sky. */}
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/25 to-transparent" />
-            </figure>
           </div>
         </div>
       </Container>

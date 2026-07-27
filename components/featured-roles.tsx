@@ -195,12 +195,13 @@ export function FeaturedRoles({
           </div>
         )}
 
-        <div className="mt-stack-lg flex justify-center md:hidden">
+        <div className="mt-stack-lg flex justify-center">
           <Link
             href="/browse"
-            className="rounded-full bg-surface-container-high px-8 py-3 text-label-md text-secondary"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-10 py-4 text-body-md font-bold text-on-primary shadow-raised transition-all hover:bg-secondary hover:shadow-lg active:scale-95"
           >
-            View all jobs
+            View all {totalJobs.toLocaleString()} jobs
+            <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
       </Container>
