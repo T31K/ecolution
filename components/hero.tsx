@@ -93,16 +93,16 @@ export function Hero({ countries }: { countries: string[] }) {
                 onChange={(event) => setQuery(event.target.value)}
               />
             </div>
-            <div className="flex w-full flex-1 items-center px-4">
-              <MapPin className="h-5 w-5 shrink-0 text-outline" />
+            <div className="flex w-full flex-1 items-center px-2">
               <Select
                 value={location}
                 onValueChange={(value) => setLocation(value as string)}
               >
                 <SelectTrigger
                   aria-label="Location"
-                  className="w-full border-none bg-transparent py-4 pl-2 text-body-md shadow-none focus-visible:ring-0"
+                  className="w-full gap-2 border-none bg-transparent py-4 pl-2 text-body-md shadow-none focus-visible:ring-0"
                 >
+                  <MapPin className="h-5 w-5 shrink-0 text-outline" />
                   <SelectValue>
                     {(value) => LOCATION_LABELS(countries)[value as string]}
                   </SelectValue>
