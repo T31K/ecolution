@@ -47,29 +47,37 @@ export function WhyClimateTech() {
           </div>
 
           <div className="relative lg:w-1/2">
-            <figure className="relative z-10 overflow-hidden rounded-2xl border border-secondary/20 shadow-2xl">
+            <figure className="relative z-10 overflow-hidden rounded-2xl border border-outline-variant/40 shadow-raised">
               <Image
-                src="/img/mission-control-room.jpg"
-                alt="A brightly lit control room where operators monitor an offshore wind farm on high-resolution screens."
-                width={1024}
-                height={576}
-                className="aspect-video w-full object-cover"
+                src="/img/why-climate-solar.jpg"
+                alt="An engineer in a hi-vis vest walks between rows of solar panels at golden hour, wind turbines on green hills behind."
+                width={1280}
+                height={720}
+                className="aspect-[4/3] w-full object-cover md:aspect-video"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent" />
-              <figcaption className="glass-card absolute right-6 bottom-6 left-6 rounded-xl border border-white/20 p-4">
-                <blockquote className="mb-1 text-body-md font-bold italic text-secondary">
+              {/* Same treatment as the auth page: primary-container scrim so
+                  white type stays legible over the bright sky. */}
+              <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/25 to-transparent" />
+              <figcaption className="absolute right-6 bottom-6 left-6 rounded-xl border border-white/15 bg-white/10 p-stack-md backdrop-blur-md">
+                <blockquote className="mb-stack-sm text-body-md leading-relaxed text-white italic">
                   &ldquo;I wanted my career to mean more than just bottom lines.
-                  Decarbon Jobs helped me find a lead engineering role at a carbon
-                  removal startup where I feel like I&rsquo;m actually saving the
-                  world.&rdquo;
+                  Decarbon Jobs helped me find a lead engineering role at a
+                  carbon removal startup where I feel like I&rsquo;m actually
+                  saving the world.&rdquo;
                 </blockquote>
-                <p className="text-label-sm text-on-surface-variant">
-                  &mdash; Sarah J., Lead Engineer @ Heirloom
-                </p>
+                <div className="flex items-center gap-stack-sm">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-label-md font-bold text-on-secondary-container">
+                    SJ
+                  </span>
+                  <div>
+                    <p className="text-label-md text-white">Sarah J.</p>
+                    <p className="text-label-sm text-secondary-container">
+                      Lead Engineer @ Heirloom
+                    </p>
+                  </div>
+                </div>
               </figcaption>
             </figure>
-            <div className="absolute -top-10 -right-10 z-0 h-40 w-40 rounded-full bg-secondary-container/30 blur-3xl" />
-            <div className="absolute -bottom-10 -left-10 z-0 h-64 w-64 rounded-full bg-tertiary-fixed-dim/20 blur-3xl" />
           </div>
         </div>
       </Container>
