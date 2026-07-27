@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronRight, ExternalLink } from "lucide-react";
 import { Container } from "./container";
+import { JobCard } from "@/components/job-card";
 import { IMPACT_LABELS, formatPostedAgo, jobChips } from "@/lib/job-view";
 import type { Job } from "@/lib/types";
 
 /**
- * The bento grid needs one hero role and six supporting ones. Picking the
+ * The bento grid needs one hero role, six supporting ones, and five list rows. Picking the
  * most-viewed recent listings keeps the front page looking active without
  * needing an editorial "featured" flag.
  */
@@ -28,15 +29,15 @@ function pickFeatured(jobs: Job[]): { hero: Job; rest: Job[] } {
     if (seenCompanies.has(job.company)) continue;
     seenCompanies.add(job.company);
     chosen.push(job);
-    if (chosen.length === 7) break;
+    if (chosen.length === 12) break;
   }
 
   // Not enough companies to fill the grid — allow repeats rather than gaps.
-  if (chosen.length < 7) {
+  if (chosen.length < 12) {
     for (const job of ranked) {
       if (chosen.includes(job)) continue;
       chosen.push(job);
-      if (chosen.length === 7) break;
+      if (chosen.length === 12) break;
     }
   }
 
@@ -95,7 +96,8 @@ export function FeaturedRoles({
   if (!hero) return null;
 
   const side = rest.slice(0, 2);
-  const bottom = rest.slice(2);
+  const bottom = rest.slice(2, 6);
+  const rows = rest.slice(6);
 
   return (
     <section className="bg-surface py-stack-lg">
@@ -195,6 +197,14 @@ export function FeaturedRoles({
             ))}
           </div>
         </div>
+
+        {rows.length > 0 && (
+          <div className="mt-gutter grid grid-cols-1 gap-gutter">
+            {rows.map((job) => (
+              <JobCard key={job.id} job={job} now={now.getTime()} />
+            ))}
+          </div>
+        )}
 
         <div className="mt-stack-lg flex justify-center md:hidden">
           <Link

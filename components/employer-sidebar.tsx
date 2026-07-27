@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -46,9 +47,10 @@ export function EmployerSidebar() {
       <SidebarHeader className="px-4 py-5">
         <Link
           href="/"
-          className="font-display text-headline-md font-bold text-secondary group-data-[collapsible=icon]:hidden"
+          className="flex items-center gap-2.5 font-display text-headline-md font-bold text-secondary"
         >
-          Ecolution
+          <Image src="/img/logo.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" />
+          <span className="group-data-[collapsible=icon]:hidden">Decarbon Jobs</span>
         </Link>
       </SidebarHeader>
 

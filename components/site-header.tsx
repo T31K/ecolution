@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,10 +25,18 @@ export function SiteHeader() {
       <Container className="flex items-center justify-between py-4">
         <div className="flex items-center gap-12">
           <Link
-            className="font-display text-headline-md font-bold text-secondary"
+            className="flex items-center gap-2.5 font-display text-headline-md font-bold text-secondary"
             href="/"
           >
-            Ecolution
+            <Image
+              src="/img/logo.png"
+              alt=""
+              width={36}
+              height={36}
+              priority
+              className="h-9 w-9"
+            />
+            Decarbon Jobs
           </Link>
           <div className="hidden items-center gap-stack-lg md:flex">
             {NAV_LINKS.map((link) => {

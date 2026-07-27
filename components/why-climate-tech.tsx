@@ -59,7 +59,7 @@ export function WhyClimateTech() {
               <figcaption className="glass-card absolute right-6 bottom-6 left-6 rounded-xl border border-white/20 p-4">
                 <blockquote className="mb-1 text-body-md font-bold italic text-secondary">
                   &ldquo;I wanted my career to mean more than just bottom lines.
-                  Ecolution helped me find a lead engineering role at a carbon
+                  Decarbon Jobs helped me find a lead engineering role at a carbon
                   removal startup where I feel like I&rsquo;m actually saving the
                   world.&rdquo;
                 </blockquote>

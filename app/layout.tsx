@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Ecolution | Engineering a Sustainable Future",
+  title: "Decarbon Jobs | Engineering a Sustainable Future",
   description:
     "Connecting engineers, designers, and scientists with high-impact startups building carbon removal, renewable energy, and sustainable infrastructure.",
 };

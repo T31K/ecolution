@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Container } from "./container";
 import { FaLinkedinIn, FaXTwitter } from "react-icons/fa6";
@@ -16,13 +17,14 @@ export function SiteFooter() {
       <Container className="flex flex-col items-center justify-between gap-stack-md py-stack-lg md:flex-row">
         <div className="flex flex-col items-center gap-2 md:items-start">
           <Link
-            className="font-display text-body-lg font-bold text-secondary"
+            className="flex items-center gap-2 font-display text-body-lg font-bold text-secondary"
             href="/"
           >
-            Ecolution
+            <Image src="/img/logo.png" alt="" width={28} height={28} className="h-7 w-7" />
+            Decarbon Jobs
           </Link>
           <p className="max-w-xs text-center text-body-sm text-on-surface-variant md:text-left">
-            © 2024 Ecolution. Engineering a sustainable future.
+            © 2024 Decarbon Jobs. Engineering a sustainable future.
           </p>
         </div>
 
@@ -40,14 +42,14 @@ export function SiteFooter() {
 
         <div className="flex gap-4">
           <span
-            aria-label="Ecolution on X (not connected in this demo)"
+            aria-label="Decarbon Jobs on X (not connected in this demo)"
             title="Not connected in this demo"
             className="text-on-surface-variant/50"
           >
             <FaXTwitter className="h-5 w-5" />
           </span>
           <span
-            aria-label="Ecolution on LinkedIn (not connected in this demo)"
+            aria-label="Decarbon Jobs on LinkedIn (not connected in this demo)"
             title="Not connected in this demo"
             className="text-on-surface-variant/50"
           >

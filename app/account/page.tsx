@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
-  title: "My Applications | Ecolution",
+  title: "My Applications | Decarbon Jobs",
   description: "Track the climate roles you have applied to.",
 };
 

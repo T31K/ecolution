@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -5,7 +6,7 @@ import { AuthForm } from "@/components/auth-form";
 import { AuthHeroVideo } from "@/components/auth-hero-video";
 
 export const metadata: Metadata = {
-  title: "Sign In or Join | Ecolution",
+  title: "Sign In or Join | Decarbon Jobs",
   description: "Access the world's most impactful climate tech network.",
 };
 
@@ -23,7 +24,7 @@ export default function AuthPage() {
 
           <figure className="absolute right-6 bottom-6 left-6 rounded-xl border border-white/15 bg-white/10 p-stack-md backdrop-blur-md">
             <blockquote className="mb-stack-md text-body-md leading-relaxed text-white italic">
-              &ldquo;Ecolution hasn&rsquo;t just helped us find engineers;
+              &ldquo;Decarbon Jobs hasn&rsquo;t just helped us find engineers;
               they&rsquo;ve helped us find visionaries who believe that our
               climate goals are solvable through innovation.&rdquo;
             </blockquote>
@@ -51,8 +52,15 @@ export default function AuthPage() {
           </Link>
 
           <div className="mb-stack-lg">
-            <p className="mb-4 font-display text-headline-md font-bold text-secondary">
-              Ecolution
+            <p className="mb-4 flex items-center gap-2.5 font-display text-headline-md font-bold text-secondary">
+              <Image
+                src="/img/logo.png"
+                alt=""
+                width={36}
+                height={36}
+                className="h-9 w-9"
+              />
+              Decarbon Jobs
             </p>
             <h1 className="mb-3 font-display text-display-mobile text-on-surface">
               Sign In or Join Now

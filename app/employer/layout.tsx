@@ -4,7 +4,7 @@ import { EmployerSidebar } from "@/components/employer-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export const metadata: Metadata = {
-  title: "Employer Dashboard | Ecolution",
+  title: "Employer Dashboard | Decarbon Jobs",
   description:
     "Manage your climate tech listings, applicants, and hiring performance.",
 };
