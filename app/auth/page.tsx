@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AuthForm } from "@/components/auth-form";
+import { AuthHeroVideo } from "@/components/auth-hero-video";
 
 export const metadata: Metadata = {
   title: "Sign In or Join | Ecolution",
@@ -15,15 +15,8 @@ export default function AuthPage() {
     // brand identity is carried by the wordmark inside the card.
     <main className="flex min-h-svh flex-col items-center justify-center bg-surface-container-low p-4 md:p-8">
       <div className="grid w-full max-w-7xl overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-raised md:min-h-[920px] md:grid-cols-2">
-        <div className="relative min-h-[320px] md:min-h-full">
-          <Image
-            src="/img/auth-wind-farm.jpg"
-            alt="A receding row of white wind turbines on a desert ridge, mountains behind them under a clear blue sky."
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover"
-          />
+        <div className="relative min-h-[320px] overflow-hidden md:min-h-full">
+          <AuthHeroVideo />
           {/* The photo is bright, so the scrim is heavier than a dusk shot
               would need — white type has to stay legible over open sky. */}
           <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/30 to-transparent" />
