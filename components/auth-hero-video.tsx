@@ -15,7 +15,9 @@ export function AuthHeroVideo() {
   return (
     <>
       <Image
-        src="/img/auth-wind-farm.jpg"
+        // Extracted from the first frame of auth-turbines.mp4 — regenerate it
+        // alongside any change to the clip or the fade reveals a jump.
+        src="/img/auth-turbines-poster.jpg"
         alt="A receding row of white wind turbines on a desert ridge, mountains behind them under a clear blue sky."
         fill
         priority
