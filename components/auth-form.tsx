@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Briefcase, Building2, Loader2, MailCheck } from "lucide-react";
-import { FaApple, FaGithub, FaGoogle } from "react-icons/fa6";
+import { Briefcase, Building2, Loader2 } from "lucide-react";
+import { FaGoogle } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -14,14 +14,9 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { ApiError, login, requestMagicLink, signup } from "@/lib/api";
+import { PasswordInput } from "@/components/password-input";
+import { ApiError, login, signup } from "@/lib/api";
 import { useSession } from "@/lib/session";
-
-const PROVIDERS = [
-  { label: "Google", icon: FaGoogle },
-  { label: "Apple", icon: FaApple },
-  { label: "GitHub", icon: FaGithub },
-];
 
 const ACCOUNT_TYPES = [
   {
@@ -55,31 +50,11 @@ export function AuthForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  // Passwordless sign-in, offered only on the login side — a brand new account
-  // has nothing to sign in to yet.
-  const [magicMode, setMagicMode] = useState(false);
-  const [magicSent, setMagicSent] = useState(false);
-
   const active = ACCOUNT_TYPES.find((type) => type.id === accountType)!;
   const isSignup = mode === "signup";
-  const useMagic = !isSignup && magicMode;
 
   const submit = () => {
     setError(null);
-
-    if (useMagic) {
-      startTransition(async () => {
-        try {
-          await requestMagicLink(email);
-          // Resolves whether or not the account exists, and this screen says
-          // the same thing either way.
-          setMagicSent(true);
-        } catch {
-          setError("We couldn't reach the server. Check your connection and try again.");
-        }
-      });
-      return;
-    }
 
     startTransition(async () => {
       try {
@@ -107,32 +82,7 @@ export function AuthForm() {
   const switchMode = (next: Mode) => {
     setMode(next);
     setError(null);
-    setMagicMode(false);
-    setMagicSent(false);
   };
-
-  if (magicSent) {
-    return (
-      <div className="rounded-xl border border-outline-variant/40 bg-surface-container-low p-stack-lg">
-        <MailCheck className="mb-4 h-8 w-8 text-secondary" />
-        <h2 className="mb-2 text-title-lg text-on-surface">Check your inbox</h2>
-        <p className="mb-stack-md text-body-md text-on-surface-variant">
-          If an account exists for <span className="font-semibold">{email}</span>, we&rsquo;ve
-          sent a one-click sign-in link. It works for the next 30 minutes.
-        </p>
-        <button
-          type="button"
-          onClick={() => {
-            setMagicSent(false);
-            setMagicMode(false);
-          }}
-          className="text-body-sm font-semibold text-secondary underline-offset-4 hover:underline"
-        >
-          Use a password instead
-        </button>
-      </div>
-    );
-  }
 
   return (
     <form
@@ -141,7 +91,9 @@ export function AuthForm() {
         submit();
       }}
     >
-      <FieldGroup>
+      {/* Tighter than the default gap-5: this form has the most rows of any
+          auth screen and has to clear the viewport on a laptop. */}
+      <FieldGroup className="gap-4">
         {isSignup && (
           <Field>
             <FieldLabel>I&rsquo;m here to</FieldLabel>
@@ -187,7 +139,7 @@ export function AuthForm() {
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder="Jane Doe"
-              className="h-12 bg-white text-body-lg"
+              className="h-11 bg-white text-body-md"
             />
           </Field>
         )}
@@ -203,7 +155,7 @@ export function AuthForm() {
               value={company}
               onChange={(event) => setCompany(event.target.value)}
               placeholder="TerraForm Dynamics"
-              className="h-12 bg-white text-body-lg"
+              className="h-11 bg-white text-body-md"
             />
           </Field>
         )}
@@ -222,36 +174,33 @@ export function AuthForm() {
                 ? "you@company.com"
                 : "name@example.com"
             }
-            className="h-12 bg-white text-body-lg"
+            className="h-11 bg-white text-body-md"
           />
         </Field>
 
-        {!useMagic && (
-          <Field>
-            <div className="flex items-baseline justify-between gap-4">
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              {!isSignup && (
-                <Link
-                  href="/auth/forgot"
-                  className="text-label-md font-semibold text-secondary underline-offset-4 hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              )}
-            </div>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="••••••••"
-              autoComplete={isSignup ? "new-password" : "current-password"}
-              className="h-12 bg-white text-body-lg"
-            />
-          </Field>
-        )}
+        <Field>
+          <div className="flex items-baseline justify-between gap-4">
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            {!isSignup && (
+              <Link
+                href="/auth/forgot"
+                className="text-label-md font-semibold text-secondary underline-offset-4 hover:underline"
+              >
+                Forgot password?
+              </Link>
+            )}
+          </div>
+          <PasswordInput
+            id="password"
+            name="password"
+            required
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="••••••••"
+            autoComplete={isSignup ? "new-password" : "current-password"}
+            className="h-11 bg-white text-body-md"
+          />
+        </Field>
 
         {error && (
           <p role="alert" className="text-body-sm font-semibold text-error">
@@ -271,46 +220,26 @@ export function AuthForm() {
             {pending
               ? isSignup
                 ? "Creating account…"
-                : useMagic
-                  ? "Sending…"
-                  : "Signing in…"
+                : "Signing in…"
               : isSignup
                 ? `Join as ${active.label.toLowerCase()}`
-                : useMagic
-                  ? "Email me a sign-in link"
-                  : "Log in"}
+                : "Log in"}
           </Button>
         </Field>
 
-        {!isSignup && (
-          <button
-            type="button"
-            onClick={() => {
-              setMagicMode(!magicMode);
-              setError(null);
-            }}
-            className="text-center text-body-sm font-semibold text-secondary underline-offset-4 hover:underline"
-          >
-            {magicMode ? "Use a password instead" : "Email me a link instead"}
-          </button>
-        )}
-
         <FieldSeparator>Or continue with</FieldSeparator>
 
-        <Field className="grid grid-cols-3 gap-4">
-          {PROVIDERS.map((provider) => (
-            <Button
-              key={provider.label}
-              type="button"
-              variant="outline"
-              disabled={pending}
-              title="Social sign-in is not wired up in this demo"
-              className="h-12 rounded-full"
-            >
-              <provider.icon className="h-5 w-5" />
-              <span className="sr-only">Continue with {provider.label}</span>
-            </Button>
-          ))}
+        <Field>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={pending}
+            title="Google sign-in is not wired up yet"
+            className="h-11 w-full rounded-full"
+          >
+            <FaGoogle className="h-5 w-5" />
+            Continue with Google
+          </Button>
         </Field>
 
         <FieldDescription className="text-center">

@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/password-input";
 import { resetPassword } from "@/lib/api";
 import { isAlreadyUsed, tokenErrorMessage } from "@/lib/auth-errors";
 import { useSession } from "@/lib/session";
@@ -76,33 +76,31 @@ export function ResetPasswordForm() {
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="password">New Password</FieldLabel>
-          <Input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
             required
             autoFocus
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder="••••••••"
-            className="h-12 bg-white text-body-lg"
+            className="h-11 bg-white text-body-md"
           />
           <FieldDescription>At least 6 characters.</FieldDescription>
         </Field>
 
         <Field>
           <FieldLabel htmlFor="confirm">Confirm New Password</FieldLabel>
-          <Input
+          <PasswordInput
             id="confirm"
             name="confirm"
-            type="password"
             required
             autoComplete="new-password"
             value={confirm}
             onChange={(event) => setConfirm(event.target.value)}
             placeholder="••••••••"
-            className="h-12 bg-white text-body-lg"
+            className="h-11 bg-white text-body-md"
           />
         </Field>
 

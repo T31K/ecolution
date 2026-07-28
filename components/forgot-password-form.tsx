@@ -74,7 +74,7 @@ export function ForgotPasswordForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder="name@example.com"
-            className="h-12 bg-white text-body-lg"
+            className="h-11 bg-white text-body-md"
           />
           <FieldDescription>
             We&rsquo;ll email you a link to choose a new password.

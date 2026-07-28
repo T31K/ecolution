@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { AuthHeroVideo } from "@/components/auth-hero-video";
 
 /**
@@ -25,22 +24,27 @@ export function AuthShell({
   showTerms?: boolean;
 }) {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center bg-surface-container-low p-4 md:p-8">
-      <div className="grid w-full max-w-7xl overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-raised md:min-h-[920px] md:grid-cols-2">
-        <div className="relative min-h-[320px] overflow-hidden md:min-h-full">
+    // Sized to fit a laptop viewport without scrolling: the card is capped
+    // against the screen height rather than given a fixed tall min-height.
+    <main className="flex min-h-svh flex-col items-center justify-center bg-surface-container-low p-4 md:p-6">
+      {/* max-h is what actually guarantees this fits: the card can never grow
+          past the viewport, and the form panel below scrolls inside it instead.
+          The 7rem allows for the page padding and the terms line underneath. */}
+      <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl border border-outline-variant/40 bg-surface-container-lowest shadow-raised md:min-h-[560px] md:max-h-[calc(100svh-7rem)] md:grid-cols-2">
+        <div className="relative min-h-[200px] overflow-hidden md:min-h-full">
           <AuthHeroVideo />
           {/* The photo is bright, so the scrim is heavier than a dusk shot
               would need — white type has to stay legible over open sky. */}
           <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/30 to-transparent" />
 
-          <figure className="absolute right-6 bottom-6 left-6 rounded-xl border border-white/15 bg-white/10 p-stack-md backdrop-blur-md">
-            <blockquote className="mb-stack-md text-body-md leading-relaxed text-white italic">
+          <figure className="absolute right-5 bottom-5 left-5 rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-md">
+            <blockquote className="mb-3 text-body-sm leading-relaxed text-white italic">
               &ldquo;Decarbon Jobs hasn&rsquo;t just helped us find engineers;
               they&rsquo;ve helped us find visionaries who believe that our
               climate goals are solvable through innovation.&rdquo;
             </blockquote>
             <figcaption className="flex items-center gap-stack-sm">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-container text-label-md font-bold text-on-secondary-container">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-container text-label-sm font-bold text-on-secondary-container">
                 SJ
               </span>
               <div>
@@ -53,35 +57,28 @@ export function AuthShell({
           </figure>
         </div>
 
-        <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-20">
-          <Link
-            href="/browse"
-            className="mb-stack-lg inline-flex items-center gap-2 text-on-surface-variant transition-colors hover:text-secondary"
-          >
-            <ArrowLeft className="h-[18px] w-[18px]" />
-            <span className="text-label-md">Back to jobs</span>
-          </Link>
-
-          <div className="mb-stack-lg">
-            <p className="mb-4 flex items-center gap-2.5 font-display text-headline-md font-bold text-secondary">
+        <div className="flex flex-col justify-center overflow-y-auto p-6 sm:p-8 lg:px-10 lg:py-8">
+          <div className="mb-5">
+            <p className="mb-3 flex items-center gap-2 font-display text-title-lg font-bold text-secondary">
               <Image
                 src="/img/logo.png"
                 alt=""
-                width={36}
-                height={36}
-                className="h-9 w-9"
+                width={28}
+                height={28}
+                className="h-7 w-7"
               />
               Decarbon Jobs
             </p>
-            <h1 className="mb-3 font-display text-display-mobile text-on-surface">
+            <h1 className="mb-2 font-display text-headline-lg text-on-surface">
               {title}
             </h1>
-            <p className="text-body-lg text-on-surface-variant">{blurb}</p>
+            {/* Sized to sit on one line in the panel rather than wrapping. */}
+            <p className="text-body-sm text-on-surface-variant">{blurb}</p>
           </div>
 
           {children}
 
-          {footer && <div className="mt-stack-lg">{footer}</div>}
+          {footer && <div className="mt-6">{footer}</div>}
         </div>
       </div>
 
