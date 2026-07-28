@@ -36,25 +36,6 @@ export function AuthShell({
           {/* The photo is bright, so the scrim is heavier than a dusk shot
               would need — white type has to stay legible over open sky. */}
           <div className="absolute inset-0 bg-gradient-to-t from-primary-container via-primary-container/30 to-transparent" />
-
-          <figure className="absolute right-5 bottom-5 left-5 rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-md">
-            <blockquote className="mb-3 text-body-sm leading-relaxed text-white italic">
-              &ldquo;Decarbon Jobs hasn&rsquo;t just helped us find engineers;
-              they&rsquo;ve helped us find visionaries who believe that our
-              climate goals are solvable through innovation.&rdquo;
-            </blockquote>
-            <figcaption className="flex items-center gap-stack-sm">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary-container text-label-sm font-bold text-on-secondary-container">
-                SJ
-              </span>
-              <div>
-                <p className="text-label-md text-white">Sarah Jenkins</p>
-                <p className="text-label-sm text-secondary-container">
-                  CTO at TerraForm Dynamics
-                </p>
-              </div>
-            </figcaption>
-          </figure>
         </div>
 
         <div className="flex flex-col justify-center overflow-y-auto p-6 sm:p-8 lg:px-10 lg:py-8">

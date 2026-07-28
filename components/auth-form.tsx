@@ -11,7 +11,6 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/password-input";
@@ -208,7 +207,9 @@ export function AuthForm() {
           </p>
         )}
 
-        <Field>
+        {/* One field so the two buttons sit at a single, even gap — as
+            separate fields they inherited the wider form rhythm. */}
+        <Field className="flex-col gap-3">
           <Button
             type="submit"
             variant="brand"
@@ -225,17 +226,14 @@ export function AuthForm() {
                 ? `Join as ${active.label.toLowerCase()}`
                 : "Log in"}
           </Button>
-        </Field>
 
-        <FieldSeparator>Or continue with</FieldSeparator>
-
-        <Field>
           <Button
             type="button"
             variant="outline"
+            size="pill-lg"
             disabled={pending}
             title="Google sign-in is not wired up yet"
-            className="h-11 w-full rounded-full"
+            className="w-full rounded-full"
           >
             <FaGoogle className="h-5 w-5" />
             Continue with Google
