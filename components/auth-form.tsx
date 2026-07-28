@@ -43,7 +43,6 @@ export function AuthForm() {
   const { signIn } = useSession();
   const [mode, setMode] = useState<Mode>("login");
   const [accountType, setAccountType] = useState<AccountType>("seeker");
-  const [name, setName] = useState("");
   const [company, setCompany] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,7 +60,6 @@ export function AuthForm() {
           ? await signup({
               email,
               password,
-              name,
               role: active.role,
               company: active.role === "poster" ? company : undefined,
             })
@@ -122,24 +120,6 @@ export function AuthForm() {
               })}
             </div>
             <FieldDescription>{active.blurb}</FieldDescription>
-          </Field>
-        )}
-
-        {isSignup && (
-          <Field>
-            <FieldLabel htmlFor="name">
-              {accountType === "employer" ? "Your Name" : "Full Name"}
-            </FieldLabel>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              required
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="Jane Doe"
-              className="h-11 bg-white text-body-md"
-            />
           </Field>
         )}
 

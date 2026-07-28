@@ -63,7 +63,8 @@ export type AuthResponse = { token: string; user: ApiUser };
 export function signup(body: {
   email: string;
   password: string;
-  name: string;
+  /** Optional: the API derives one from the email when it isn't supplied. */
+  name?: string;
   role: "seeker" | "poster";
   headline?: string;
   company?: string;
