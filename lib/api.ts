@@ -55,6 +55,7 @@ export type ApiUser = {
   headline: string | null;
   company: string | null;
   companyLogo: string | null;
+  emailVerified: boolean;
 };
 
 export type AuthResponse = { token: string; user: ApiUser };
@@ -76,6 +77,46 @@ export function login(email: string, password: string): Promise<AuthResponse> {
 
 export function me(token: string): Promise<{ user: ApiUser }> {
   return request("/decarbon/me", { token });
+}
+
+// ── Email verification, password reset, magic link ─────────────────────────────
+
+/**
+ * Why the confirm calls return AuthResponse: redeeming any of these links
+ * establishes a session, so the caller feeds the result straight to signIn()
+ * exactly as it does for login.
+ */
+
+/** Errors a confirm endpoint can return. The copy differs for each. */
+export type TokenError = "invalid_token" | "token_expired" | "token_used";
+
+export function sendVerification(token: string): Promise<{ ok: true }> {
+  return request("/decarbon/verify/send", { method: "POST", token });
+}
+
+export function confirmVerification(token: string): Promise<AuthResponse> {
+  return request("/decarbon/verify/confirm", { method: "POST", body: { token } });
+}
+
+/**
+ * Resolves whether or not the address has an account — the backend deliberately
+ * gives the same answer either way, so the UI must not imply otherwise.
+ */
+export function forgotPassword(email: string): Promise<{ ok: true }> {
+  return request("/decarbon/password/forgot", { method: "POST", body: { email } });
+}
+
+export function resetPassword(token: string, password: string): Promise<AuthResponse> {
+  return request("/decarbon/password/reset", { method: "POST", body: { token, password } });
+}
+
+/** Same flat-response contract as forgotPassword. */
+export function requestMagicLink(email: string): Promise<{ ok: true }> {
+  return request("/decarbon/magic/request", { method: "POST", body: { email } });
+}
+
+export function confirmMagicLink(token: string): Promise<AuthResponse> {
+  return request("/decarbon/magic/confirm", { method: "POST", body: { token } });
 }
 
 // ── Jobs ───────────────────────────────────────────────────────────────────────

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Briefcase, Building2, Loader2 } from "lucide-react";
+import { Briefcase, Building2, Loader2, MailCheck } from "lucide-react";
 import { FaApple, FaGithub, FaGoogle } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,7 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { ApiError, login, signup } from "@/lib/api";
+import { ApiError, login, requestMagicLink, signup } from "@/lib/api";
 import { useSession } from "@/lib/session";
 
 const PROVIDERS = [
@@ -54,12 +55,32 @@ export function AuthForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  // Passwordless sign-in, offered only on the login side — a brand new account
+  // has nothing to sign in to yet.
+  const [magicMode, setMagicMode] = useState(false);
+  const [magicSent, setMagicSent] = useState(false);
 
   const active = ACCOUNT_TYPES.find((type) => type.id === accountType)!;
   const isSignup = mode === "signup";
+  const useMagic = !isSignup && magicMode;
 
   const submit = () => {
     setError(null);
+
+    if (useMagic) {
+      startTransition(async () => {
+        try {
+          await requestMagicLink(email);
+          // Resolves whether or not the account exists, and this screen says
+          // the same thing either way.
+          setMagicSent(true);
+        } catch {
+          setError("We couldn't reach the server. Check your connection and try again.");
+        }
+      });
+      return;
+    }
+
     startTransition(async () => {
       try {
         const result = isSignup
@@ -86,7 +107,32 @@ export function AuthForm() {
   const switchMode = (next: Mode) => {
     setMode(next);
     setError(null);
+    setMagicMode(false);
+    setMagicSent(false);
   };
+
+  if (magicSent) {
+    return (
+      <div className="rounded-xl border border-outline-variant/40 bg-surface-container-low p-stack-lg">
+        <MailCheck className="mb-4 h-8 w-8 text-secondary" />
+        <h2 className="mb-2 text-title-lg text-on-surface">Check your inbox</h2>
+        <p className="mb-stack-md text-body-md text-on-surface-variant">
+          If an account exists for <span className="font-semibold">{email}</span>, we&rsquo;ve
+          sent a one-click sign-in link. It works for the next 30 minutes.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setMagicSent(false);
+            setMagicMode(false);
+          }}
+          className="text-body-sm font-semibold text-secondary underline-offset-4 hover:underline"
+        >
+          Use a password instead
+        </button>
+      </div>
+    );
+  }
 
   return (
     <form
@@ -180,20 +226,32 @@ export function AuthForm() {
           />
         </Field>
 
-        <Field>
-          <FieldLabel htmlFor="password">Password</FieldLabel>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="••••••••"
-            autoComplete={isSignup ? "new-password" : "current-password"}
-            className="h-12 bg-white text-body-lg"
-          />
-        </Field>
+        {!useMagic && (
+          <Field>
+            <div className="flex items-baseline justify-between gap-4">
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              {!isSignup && (
+                <Link
+                  href="/auth/forgot"
+                  className="text-label-md font-semibold text-secondary underline-offset-4 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              )}
+            </div>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
+              autoComplete={isSignup ? "new-password" : "current-password"}
+              className="h-12 bg-white text-body-lg"
+            />
+          </Field>
+        )}
 
         {error && (
           <p role="alert" className="text-body-sm font-semibold text-error">
@@ -213,12 +271,29 @@ export function AuthForm() {
             {pending
               ? isSignup
                 ? "Creating account…"
-                : "Signing in…"
+                : useMagic
+                  ? "Sending…"
+                  : "Signing in…"
               : isSignup
                 ? `Join as ${active.label.toLowerCase()}`
-                : "Log in"}
+                : useMagic
+                  ? "Email me a sign-in link"
+                  : "Log in"}
           </Button>
         </Field>
+
+        {!isSignup && (
+          <button
+            type="button"
+            onClick={() => {
+              setMagicMode(!magicMode);
+              setError(null);
+            }}
+            className="text-center text-body-sm font-semibold text-secondary underline-offset-4 hover:underline"
+          >
+            {magicMode ? "Use a password instead" : "Email me a link instead"}
+          </button>
+        )}
 
         <FieldSeparator>Or continue with</FieldSeparator>
 
