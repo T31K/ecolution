@@ -23,19 +23,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full bg-surface shadow-card">
       <Container className="relative flex items-center justify-between py-4">
-        <Link
-          className="flex items-center gap-2.5 font-display text-headline-md font-bold text-secondary"
-          href="/"
-        >
+        <Link className="flex items-center" href="/" aria-label="Decarbon Jobs home">
           <Image
-            src="/img/logo.png"
-            alt=""
-            width={36}
-            height={36}
+            src="/img/logo-wordmark.png"
+            alt="Decarbon Jobs"
+            width={1600}
+            height={322}
             priority
-            className="h-9 w-9"
+            className="h-9 w-auto"
           />
-          Decarbon Jobs
         </Link>
         <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-stack-lg md:flex">
             {NAV_LINKS.map((link) => {

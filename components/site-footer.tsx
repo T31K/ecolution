@@ -16,12 +16,8 @@ export function SiteFooter() {
     <footer className="mt-stack-lg w-full border-t border-outline-variant bg-surface-container-low">
       <Container className="flex flex-col items-center justify-between gap-stack-md py-stack-lg md:flex-row">
         <div className="flex flex-col items-center gap-2 md:items-start">
-          <Link
-            className="flex items-center gap-2 font-display text-body-lg font-bold text-secondary"
-            href="/"
-          >
-            <Image src="/img/logo.png" alt="" width={28} height={28} className="h-7 w-7" />
-            Decarbon Jobs
+          <Link className="flex items-center" href="/" aria-label="Decarbon Jobs home">
+            <Image src="/img/logo-wordmark.png" alt="Decarbon Jobs" width={1600} height={322} className="h-7 w-auto" />
           </Link>
           <p className="max-w-xs text-center text-body-sm text-on-surface-variant md:text-left">
             © 2024 Decarbon Jobs. Engineering a sustainable future.
