@@ -5,7 +5,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { UnverifiedBanner } from "@/components/unverified-banner";
 
 export const metadata: Metadata = {
-  title: "Employer Dashboard | Decarbon Jobs",
+  title: "Employer Dashboard | Sustainability Manager Jobs",
   description:
     "Manage your climate tech listings, applicants, and hiring performance.",
 };

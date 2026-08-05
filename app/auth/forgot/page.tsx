@@ -3,7 +3,7 @@ import { AuthShell } from "@/components/auth-shell";
 import { ForgotPasswordForm } from "@/components/forgot-password-form";
 
 export const metadata: Metadata = {
-  title: "Reset Your Password | Decarbon Jobs",
+  title: "Reset Your Password | Sustainability Manager Jobs",
   description: "We'll email you a link to choose a new password.",
 };
 

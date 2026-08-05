@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Decarbon Jobs | Engineering a Sustainable Future",
+  title: "Sustainability Manager Jobs | Engineering a Sustainable Future",
   description:
     "Connecting engineers, designers, and scientists with high-impact startups building carbon removal, renewable energy, and sustainable infrastructure.",
 };

@@ -50,7 +50,7 @@ export function EmployerSidebar() {
           className="flex items-center gap-2.5 font-display text-headline-md font-bold text-secondary"
         >
           <Image src="/img/logo.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" />
-          <span className="group-data-[collapsible=icon]:hidden">Decarbon Jobs</span>
+          <span className="group-data-[collapsible=icon]:hidden">Sustainability Manager Jobs</span>
         </Link>
       </SidebarHeader>
 

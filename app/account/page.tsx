@@ -7,7 +7,7 @@ import { SiteHeader } from "@/components/site-header";
 import { UnverifiedBanner } from "@/components/unverified-banner";
 
 export const metadata: Metadata = {
-  title: "My Applications | Decarbon Jobs",
+  title: "My Applications | Sustainability Manager Jobs",
   description: "Track the climate roles you have applied to.",
 };
 

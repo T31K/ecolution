@@ -12,9 +12,9 @@ import { SiteHeader } from "@/components/site-header";
  */
 const PAGES: Record<string, { title: string; body: string[] }> = {
   about: {
-    title: "About Decarbon Jobs",
+    title: "About Sustainability Manager Jobs",
     body: [
-      "Decarbon Jobs connects engineers, scientists, designers and operators with companies working directly on climate outcomes — carbon removal, renewable generation, grid software, water infrastructure and circular supply chains.",
+      "Sustainability Manager Jobs connects engineers, scientists, designers and operators with companies working directly on climate outcomes — carbon removal, renewable generation, grid software, water infrastructure and circular supply chains.",
       "We list roles where the work itself moves a physical number: tonnes abated, megawatts delivered, litres recovered.",
     ],
   },
@@ -35,7 +35,7 @@ const PAGES: Record<string, { title: string; body: string[] }> = {
   "climate-commitment": {
     title: "Climate Commitment",
     body: [
-      "Decarbon Jobs exists to shorten the distance between skilled people and the organisations that need them to hit climate targets.",
+      "Sustainability Manager Jobs exists to shorten the distance between skilled people and the organisations that need them to hit climate targets.",
       "We measure ourselves on placements into roles with a direct emissions or resilience mandate, not on total listings or traffic.",
     ],
   },
@@ -59,7 +59,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const page = PAGES[slug];
-  return { title: page ? `${page.title} | Decarbon Jobs` : "Not found | Decarbon Jobs" };
+  return { title: page ? `${page.title} | Sustainability Manager Jobs` : "Not found | Sustainability Manager Jobs" };
 }
 
 export default async function LegalPage({

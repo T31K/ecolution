@@ -19,10 +19,10 @@ export async function generateMetadata({
   const { id } = await params;
   const job = await getJob(id);
 
-  if (!job) return { title: "Job not found | Decarbon Jobs" };
+  if (!job) return { title: "Job not found | Sustainability Manager Jobs" };
 
   return {
-    title: `${job.title} at ${job.company} | Decarbon Jobs`,
+    title: `${job.title} at ${job.company} | Sustainability Manager Jobs`,
     description: job.about,
   };
 }

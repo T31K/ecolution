@@ -5,7 +5,7 @@ import { AuthShell } from "@/components/auth-shell";
 import { AuthTokenRedeemer } from "@/components/auth-token-redeemer";
 
 export const metadata: Metadata = {
-  title: "Confirm Your Email | Decarbon Jobs",
+  title: "Confirm Your Email | Sustainability Manager Jobs",
   description: "Confirm your email address to finish setting up your account.",
 };
 

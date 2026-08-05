@@ -5,8 +5,8 @@ import { AuthShell } from "@/components/auth-shell";
 import { ResetPasswordForm } from "@/components/reset-password-form";
 
 export const metadata: Metadata = {
-  title: "Choose a New Password | Decarbon Jobs",
-  description: "Set a new password for your Decarbon Jobs account.",
+  title: "Choose a New Password | Sustainability Manager Jobs",
+  description: "Set a new password for your Sustainability Manager Jobs account.",
 };
 
 export default function ResetPasswordPage() {

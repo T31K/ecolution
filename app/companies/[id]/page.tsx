@@ -44,10 +44,10 @@ export async function generateMetadata({
   const jobs = await getCompanyJobs(id);
   const company = jobs[0]?.company;
 
-  if (!company) return { title: "Company not found | Decarbon Jobs" };
+  if (!company) return { title: "Company not found | Sustainability Manager Jobs" };
 
   return {
-    title: `${company} — open roles | Decarbon Jobs`,
+    title: `${company} — open roles | Sustainability Manager Jobs`,
     description: `Climate tech roles open at ${company}.`,
   };
 }

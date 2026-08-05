@@ -48,7 +48,7 @@ export function AuthShell({
                 height={28}
                 className="h-7 w-7"
               />
-              Decarbon Jobs
+              Sustainability Manager Jobs
             </p>
             <h1 className="mb-2 font-display text-headline-lg text-on-surface">
               {title}

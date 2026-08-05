@@ -11,7 +11,7 @@ import { SALARY_FLOOR, hasActiveFilters, parseFilters } from "@/lib/filters";
 import { listJobs } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "Browse Green Tech Jobs | Decarbon Jobs",
+  title: "Browse Green Tech Jobs | Sustainability Manager Jobs",
   description:
     "Connect with leading climate tech firms and mission-driven startups engineering a sustainable world.",
 };

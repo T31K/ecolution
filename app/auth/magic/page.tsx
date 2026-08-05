@@ -5,7 +5,7 @@ import { AuthShell } from "@/components/auth-shell";
 import { AuthTokenRedeemer } from "@/components/auth-token-redeemer";
 
 export const metadata: Metadata = {
-  title: "Signing You In | Decarbon Jobs",
+  title: "Signing You In | Sustainability Manager Jobs",
   description: "Signing you in with your emailed link.",
 };
 

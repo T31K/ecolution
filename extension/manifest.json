@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Decarbon Jobs Job Scraper",
+  "name": "Sustainability Manager Jobs Job Scraper",
   "version": "1.0.0",
-  "description": "Select job text on any job board and press Cmd+Shift+Y to send it to Decarbon Jobs.",
+  "description": "Select job text on any job board and press Cmd+Shift+Y to send it to Sustainability Manager Jobs.",
   "permissions": ["activeTab", "scripting", "notifications"],
   "host_permissions": ["https://api.kaleidoscopical.com/*", "http://localhost:3001/*"],
   "background": { "service_worker": "background.js" },
@@ -12,5 +12,5 @@
       "description": "Capture selected job text"
     }
   },
-  "action": { "default_title": "Decarbon Jobs Job Scraper (select text, Cmd+Shift+Y)" }
+  "action": { "default_title": "Sustainability Manager Jobs Job Scraper (select text, Cmd+Shift+Y)" }
 }

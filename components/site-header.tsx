@@ -23,10 +23,10 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 w-full bg-surface shadow-card">
       <Container className="relative flex items-center justify-between py-4">
-        <Link className="flex items-center" href="/" aria-label="Decarbon Jobs home">
+        <Link className="flex items-center" href="/" aria-label="Sustainability Manager Jobs home">
           <Image
             src="/img/logo-wordmark.png"
-            alt="Decarbon Jobs"
+            alt="Sustainability Manager Jobs"
             width={1600}
             height={322}
             priority
