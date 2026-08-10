@@ -69,8 +69,6 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
-    folders: Folder;
-    tags: Tag;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,8 +78,6 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
-    folders: FoldersSelect<false> | FoldersSelect<true>;
-    tags: TagsSelect<false> | TagsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -90,10 +86,10 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  fallbackLocale: ('false' | 'none' | 'null') | false | null | 'en' | 'en'[];
+  fallbackLocale: null;
   globals: {};
   globalsSelect: {};
-  locale: 'en';
+  locale: null;
   widgets: {
     collections: CollectionsWidget;
   };
@@ -121,6 +117,10 @@ export interface UserAuthOperations {
     password: string;
   };
 }
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
 export interface User {
   id: string;
   updatedAt: string;
@@ -149,8 +149,6 @@ export interface User {
 export interface Media {
   id: string;
   alt: string;
-  _h_folders?: (string | null) | Folder;
-  _h_tags?: (string | Tag)[] | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -165,30 +163,8 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "folders".
+ * via the `definition` "payload-kv".
  */
-export interface Folder {
-  id: string;
-  _h_folders?: (string | null) | Folder;
-  name: string;
-  updatedAt: string;
-  createdAt: string;
-  _h_slugPath?: string | null;
-  _h_titlePath?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags".
- */
-export interface Tag {
-  id: string;
-  _h_tags?: (string | null) | Tag;
-  name: string;
-  updatedAt: string;
-  createdAt: string;
-  _h_slugPath?: string | null;
-  _h_titlePath?: string | null;
-}
 export interface PayloadKv {
   id: string;
   key: string;
@@ -216,14 +192,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
-      } | null)
-    | ({
-        relationTo: 'folders';
-        value: string | Folder;
-      } | null)
-    | ({
-        relationTo: 'tags';
-        value: string | Tag;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -295,8 +263,6 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  _h_folders?: T;
-  _h_tags?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -311,28 +277,8 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "folders_select".
+ * via the `definition` "payload-kv_select".
  */
-export interface FoldersSelect<T extends boolean = true> {
-  _h_folders?: T;
-  name?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _h_slugPath?: T;
-  _h_titlePath?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tags_select".
- */
-export interface TagsSelect<T extends boolean = true> {
-  _h_tags?: T;
-  name?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _h_slugPath?: T;
-  _h_titlePath?: T;
-}
 export interface PayloadKvSelect<T extends boolean = true> {
   key?: T;
   data?: T;
