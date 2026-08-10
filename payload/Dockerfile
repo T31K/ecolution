@@ -60,6 +60,6 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME 0.0.0.0
 
-# `next start` serves the regular .next build with full node_modules present, so
-# Payload's schema push runs on init. Exec form so signals reach the process.
-CMD ["npm", "run", "start"]
+# Apply DB migrations (creates/updates the schema), then serve. Runs at runtime
+# where the DB is reachable and full node_modules (payload CLI) are present.
+CMD ["sh", "-c", "npm run payload -- migrate && npm run start"]

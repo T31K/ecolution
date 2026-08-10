@@ -25,10 +25,11 @@ export default buildConfig({
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   db: postgresAdapter({
-    // Auto-create/sync the schema on boot. Fine for an early-stage DB; for a
-    // production DB with real data, switch to generated migrations (payload
-    // migrate:create + payload migrate) and set push: false.
-    push: true,
+    // Schema is managed by committed migrations (payload/src/migrations), applied
+    // at container startup via `payload migrate`. push does NOT run in the
+    // production server, so it must stay off here.
+    push: false,
+    migrationDir: path.resolve(dirname, 'migrations'),
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
